@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 एडमिन पैनल - Token Approval System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- हेडर -->
+        <div class="header">
+            <h1>👑 <span>एडमिन पैनल</span></h1>
+            <p>Token Approval System for TRON Blockchain</p>
+        </div>
+
+        <!-- नेटवर्क इंडिकेटर -->
+        <div id="networkIndicator" class="network-badge"></div>
+
+        <!-- वॉलेट सेक्शन -->
+        <div class="wallet-section">
+            <div class="flex justify-between align-center">
+                <div>
+                    <strong>कॉन्ट्रैक्ट एड्रेस:</strong>
+                    <span id="contractAddress"></span>
+                    <a href="#" onclick="window.open('https://tronscan.org/#/address/' + CONFIG.contractAddress)">🔗</a>
+                </div>
+                <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">
+                    🔌 वॉलेट कनेक्ट करें
+                </button>
+            </div>
+            <div id="walletInfo" class="mt-20"></div>
+        </div>
+
+        <!-- टैब नेविगेशन -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">📊 डैशबोर्ड</button>
+            <button class="tab" onclick="switchTab('approvals')">✅ अप्रूवल</button>
+            <button class="tab" onclick="switchTab('transactions')">💸 ट्रांजेक्शन</button>
+            <button class="tab" onclick="switchTab('users')">👥 यूजर्स</button>
+            <button class="tab" onclick="switchTab('settings')">⚙️ सेटिंग्स</button>
+        </div>
+
+        <!-- ===== डैशबोर्ड टैब ===== -->
+        <div id="dashboard-tab" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>कुल ट्रांजेक्शन</h3>
+                    <div class="number" id="totalTx">0</div>
+                    <div class="sub">पिछले 24 घंटे</div>
+                </div>
+                <div class="stat-card">
+                    <h3>कुल यूजर्स</h3>
+                    <div class="number" id="totalUsers">0</div>
+                    <div class="sub">एक्टिव यूजर्स</div>
+                </div>
+                <div class="stat-card">
+                    <h3>कुल वॉल्यूम</h3>
+                    <div class="number" id="totalVolume">0</div>
+                    <div class="sub">USDT में</div>
+                </div>
+                <div class="stat-card">
+                    <h3>पेंडिंग अप्रूवल</h3>
+                    <div class="number" id="pendingApprovals">0</div>
+                    <div class="sub">एक्टिव अप्रूवल</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                    <h3 style="margin-bottom: 15px;">🔥 हालिया ट्रांजेक्शन</h3>
+                    <div id="recentTx"></div>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                    <h3 style="margin-bottom: 15px;">👑 टॉप यूजर्स</h3>
+                    <div id="topUsers"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== अप्रूवल टैब ===== -->
+        <div id="approvals-tab" class="tab-content" style="display: none;">
+            <div class="filter-bar">
+                <input type="text" id="approvalSearch" placeholder="🔍 यूजर एड्रेस सर्च करें...">
+                <select id="approvalFilter">
+                    <option value="all">सभी अप्रूवल</option>
+                    <option value="active">एक्टिव</option>
+                    <option value="used">यूज्ड</option>
+                </select>
+                <button class="btn btn-secondary" onclick="refreshApprovals()">⟳ रिफ्रेश</button>
+                <button class="btn btn-primary" onclick="exportApprovals()">📥 एक्सपोर्ट</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>यूजर एड्रेस</th>
+                            <th>टोकन</th>
+                            <th>अमाउंट</th>
+                            <th>अप्रूव टाइम</th>
+                            <th>स्टेटस</th>
+                            <th>टीएक्स हैश</th>
+                            <th>एक्शन</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvalsTable">
+                        <tr><td colspan="7" class="text-center">⏳ डेटा लोड हो रहा है...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== ट्रांजेक्शन टैब ===== -->
+        <div id="transactions-tab" class="tab-content" style="display: none;">
+            <div class="filter-bar">
+                <input type="text" id="txSearch" placeholder="🔍 एड्रेस या TX हैश...">
+                <input type="date" id="txDate">
+                <select id="txType">
+                    <option value="all">सभी ट्रांजेक्शन</option>
+                    <option value="transfer">ट्रांसफर</option>
+                    <option value="approval">अप्रूवल</option>
+                </select>
+                <button class="btn btn-primary" onclick="exportToCSV()">📥 CSV एक्सपोर्ट</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>टाइम</th>
+                            <th>टाइप</th>
+                            <th>फ्रॉम</th>
+                            <th>टू</th>
+                            <th>अमाउंट</th>
+                            <th>टीएक्स हैश</th>
+                            <th>स्टेटस</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                        <tr><td colspan="7" class="text-center">⏳ डेटा लोड हो रहा है...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-between align-center mt-20">
+                <button class="btn btn-secondary" onclick="prevPage()">← पिछला</button>
+                <span id="pageInfo">पेज 1</span>
+                <button class="btn btn-secondary" onclick="nextPage()">अगला →</button>
+            </div>
+        </div>
+
+        <!-- ===== यूजर्स टैब
