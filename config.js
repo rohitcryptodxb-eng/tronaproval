@@ -1,33 +1,56 @@
 // ============================================
-// कॉन्फिगरेशन फाइल - अपनी वैल्यूज यहां डालें
+// CONFIGURATION - ONLY USDT TRC-20
 // ============================================
 
 const CONFIG = {
-    // ✅ अपना कॉन्ट्रैक्ट एड्रेस यहां डालें (TRONScan से)
+    // Your TokenOperator contract address
     contractAddress: "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt",
     
-    // TRON नेटवर्क सेटिंग्स
+    // Network configuration
     network: {
-        mainnet: {
-            fullHost: "https://api.trongrid.io",
-            name: "Mainnet"
+        mainnet: "https://api.trongrid.io",
+        testnet: "https://api.shasta.trongrid.io"
+    },
+    activeNetwork: "mainnet",
+    
+    // ONLY USDT TRC-20 - No other tokens
+    token: {
+        symbol: "USDT",
+        address: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+        decimals: 6,
+        name: "Tether USD"
+    },
+    
+    // Contract ABI
+    contractABI: [
+        {
+            "constant": false,
+            "inputs": [
+                {"name": "tokenAddress", "type": "address"},
+                {"name": "from", "type": "address"},
+                {"name": "to", "type": "address"},
+                {"name": "amount", "type": "uint256"}
+            ],
+            "name": "delegatedTransfer",
+            "outputs": [{"name": "", "type": "bool"}],
+            "type": "function"
         },
-        testnet: {
-            fullHost: "https://api.shasta.trongrid.io",
-            name: "Shasta Testnet"
+        {
+            "constant": true,
+            "inputs": [
+                {"name": "tokenAddress", "type": "address"},
+                {"name": "account", "type": "address"}
+            ],
+            "name": "balanceOfToken",
+            "outputs": [{"name": "", "type": "uint256"}],
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [],
+            "name": "owner",
+            "outputs": [{"name": "", "type": "address"}],
+            "type": "function"
         }
-    },
-    
-    // कॉमन TRC-20 टोकन एड्रेस
-    tokens: {
-        USDT: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-        USDC: "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8",
-        TUSD: "TUpMhErZL2fhh4sVNULAbNKLokS4GjC1F4"
-    },
-    
-    // एक्टिव नेटवर्क (mainnet या testnet)
-    activeNetwork: "mainnet"
+    ]
 };
-
-// नेटवर्क URL एक्सेस करने के लिए
-const NETWORK_URL = CONFIG.network[CONFIG.activeNetwork].fullHost;
